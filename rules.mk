@@ -53,10 +53,14 @@ edit= sed -e 's|@NEMID[@]|$*|g'                                        \
                                         echo $(PLATFORMDEPS)| wc -w;   \
                                       fi)|g'
 
+ifdef GENERATED_PLATFORMS
+
 platform%.xml: $(TEMPLATE_PLATFORM)
 	if test -f $@; then chmod u+w $@; fi
 	$(edit) $< > $@
 	chmod g-w,u-w $@
+
+endif
 
 $(PLATFORMDEPS): .%-dep:%
 	mkdir .emanegentransportxml && \
