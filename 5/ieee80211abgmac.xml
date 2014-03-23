@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mac SYSTEM "file:///usr/share/emane/dtd/mac.dtd">
+<mac library="ieee80211abgmaclayer">
+  <param name="mode"                  value="2"/>
+  <param name="enablepromiscuousmode" value="off"/>
+  <param name="distance"              value="1000"/>
+  <param name="unicastrate"           value="1"/>
+  <param name="multicastrate"         value="1"/>
+  <param name="rtsthreshold"          value="0"/>
+  <param name="pcrcurveuri"
+         value="file:///usr/share/emane/xml/models/mac/ieee80211abg/ieee80211pcr.xml"/>
+  <param name="flowcontrolenable"     value="off"/>
+  <param name="flowcontroltokens"     value="10"/>
+  <param name="radiometricenable"     value="off"/>
+  <param name="retrylimit0"           value="0"/>
+  <param name="retrylimit1"           value="0"/>
+  <param name="retrylimit2"           value="0"/>
+  <param name="retrylimit3"           value="0"/>
+  <param name="queuesize0"            value="50"/>
+  <param name="queuesize1"            value="50"/>
+  <param name="queuesize2"            value="50"/>
+  <param name="queuesize3"            value="50"/>
+</mac>

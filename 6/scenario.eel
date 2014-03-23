@@ -1,0 +1,25 @@
+0.0 nem:1 antennaprofile 1,0.0,0.0
+0.0 nem:4 antennaprofile 2,0.0,0.0
+
+0.0 nem:1  pathloss nem:2,60  nem:3,60   nem:4,60
+0.0 nem:2  pathloss nem:3,60  nem:4,60
+0.0 nem:3  pathloss nem:4,60
+
+0.0 nem:1  location gps 40.025495,-74.315441,3.0 
+0.0 nem:2  location gps 40.025495,-74.312501,3.0 
+0.0 nem:3  location gps 40.023235,-74.315441,3.0
+0.0 nem:4  location gps 40.023235,-74.312501,3.0
+0.0 nem:4  velocity 180.0,0.0,10.0
+
+
+30.0 nem:1 velocity 20.0,0.0,10.0
+30.0 nem:1 orientation 0.0,0.0,10.0
+30.0 nem:1 antennaprofile 1,60.0,0.0
+30.0 nem:4 velocity 270.0,0.0,10.0
+
+60.0 nem:1 antennaprofile 1,105.0,0.0
+60.0 nem:4 antennaprofile 2,45.0,0.0
+
+90.0 nem:1 velocity 90.0,0.0,10.0
+90.0 nem:1 orientation 0.0,0.0,0.0
+90.0 nem:1 antennaprofile 1,45.0,0.0

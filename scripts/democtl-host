@@ -1,0 +1,511 @@
+#!/bin/bash -
+#
+# Copyright (c) 2014 - Adjacent Link LLC, Bridgewater, New Jersey
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+# * Neither the name of Adjacent Link LLC nor the names of its
+#   contributors may be used to endorse or promote products derived
+#   from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+prefix=node-
+bridge=emanenode0
+nodevolume=/var/lib/emanenode
+bridgecontrol=1
+
+check_bridge()
+{
+    return $(brctl show | awk "/^$1\s+/{exit 1}") 
+}
+
+check_euid()
+{
+    if [ $EUID -ne 0 ]
+    then
+        echo "You need to be root to perform this command."
+        exit 1
+    fi
+}
+
+start_emaneeventservice()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+    local starttime="$5"
+
+    local startoption=""
+
+    if [ -n "$starttime" ]; then
+        startoption="--starttime $(date --date "$starttime" "+%H:%M:%S")"
+    fi
+
+    if [ -f $xml ]; then
+
+        echo "Starting emaneeventservice: $xml at $starttime"
+
+        emaneeventservice -d "$xml" -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile" \
+            $startoption
+
+        retval=$?
+    else
+
+        echo "Missing emaneeventservice XML: $xml"
+
+        retval=1
+    fi
+    
+    return $retval
+}
+
+start_emane()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting emane: $xml"
+
+        emane "$xml" -d -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing emane XML: $xml"
+        retval=1
+    fi
+    
+    return $retval
+}
+
+start_emanetransportd()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+    
+    if [ -f $xml ]; then
+
+        echo "Starting emanetransport: $xml"
+
+        emanetransportd -r -d "$xml" -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+
+        echo "Missing emaneeventd XML: $xml"
+
+        retval=1
+    fi
+    
+    return $retval
+}
+
+usage()
+{
+    echo
+    echo " usage: democtl-host start [START OPTIONS]... DEMOID NUMBER_NODES"
+    echo "        democtl-host stop  [STOP OPTIONS]... DEMOID NUMBER_NODES"
+    echo "        democtl-host help"
+    echo 
+    echo " start options:"
+    echo "  -s STARTTIME  Demo scenario start time HH:MM:SS or any 'date' command"
+    echo "                 syntax (i.e. 'now + 30 sec')"
+    echo "  -e ENVFILE    Environment file to source"
+    echo "  -n            Do not control the bridge"
+    echo
+    echo " stop options:"
+    echo "  -e ENVFILE    Environment file to source"
+    echo "  -n            Do not control the bridge"
+    echo
+}
+
+if [ $EUID -ne 0 ]
+then
+    echo "You need to be root to perform this command."
+    exit 1
+fi
+
+case "$1" in
+    start)
+        starttime=
+        envcommand=
+        
+        OPTIND=2
+
+        # process options
+        while getopts ":s:e:n" opt; do
+            case $opt in
+                n)
+                    bridgecontrol=0
+                    ;;
+                s)
+                    echo "starttime=$OPTARG"
+                    starttime="$OPTARG"
+                    ;;
+                e)
+                    envcommand="-e $OPTARG"
+                    . "$OPTARG"
+                    ;;   
+                \?)
+                    echo "Invalid option: -$OPTARG" >&2
+                    exit 1
+                    ;;
+            esac
+        done
+        
+        shift $((OPTIND - 1))
+        
+        if [ $# -ne 2 ]
+        then
+            echo "Invalid number of parameters $@" >&2
+            exit 1
+        fi
+        
+        shopt -s extglob
+        demoid=$1
+        nodecount=$2
+
+        if [[ $demoid != +([0-9]) ]]
+        then
+            echo "Invalid demo id: $demoid" >&2
+            exit 1
+        fi
+
+        if [[ $nodecount != +([0-9]) ]]
+        then
+            echo "Invalid node count: nodecount" >&2
+            exit 1
+        fi
+        
+        if [ -z "$starttime" ]
+        then
+            starttime=$(date -R --date "now + 40 sec")
+        else
+            starttime=$(date --date "$starttime" "+%H:%M:%S")
+        fi
+        
+        utctime=$(date -R --date="$starttime" --utc)
+
+        if [ ! -d $nodevolume ]
+        then
+            echo "Node volume does not exist:  $nodevolume" >&2  
+            exit 1
+        fi
+
+
+        mkdir -p persist/host/var/log
+        mkdir -p persist/host/var/run
+
+        if [ -n "$SUDO_USER" ]
+            then
+            chown -R $SUDO_USER:$SUDO_USER persist
+        fi
+
+        if [ -f  /var/run/demo.lock ]
+            then
+            echo "Demo example $(cat /var/run/demo.lock) already running" >&2
+            echo "Run './demo-stop' first" >&2
+            exit 1
+        else
+            echo $demoid >  /var/run/demo.lock
+        fi
+
+        if [[ $bridgecontrol -ne 0 ]]
+        then
+            if (check_bridge $bridge)
+            then
+                echo "Creating bridge: $bridge"
+                
+                brctl addbr $bridge
+                
+                ip addr add 10.99.0.100/24 dev $bridge
+                
+                ip link set $bridge up
+                
+                iptables -I INPUT -i $bridge -j ACCEPT
+                
+                iptables -I FORWARD -i $bridge -j ACCEPT
+            else
+                echo "Found bridge: $bridge"
+            fi
+        fi
+
+        # disable realtime scheduling contraints
+        sysctl kernel.sched_rt_runtime_us=-1
+
+        cat <<EOF > persist/host/var/run/fixdevptsmount.sh
+#!/bin/bash -
+mount /dev/pts -o remount,rw,mode=620,ptmxmode=666,gid=5
+EOF
+            
+        chmod o+x persist/host/var/run/fixdevptsmount.sh
+       
+        for nodeid in $(seq 1 $nodecount)
+        do
+            mkdir -p persist/$nodeid/var/log
+            mkdir -p persist/$nodeid/var/run
+            rm -f persist/$nodeid/var/log/*
+            rm -f persist/$nodeid/var/run/*
+            
+            if [ -n "$SUDO_USER" ]
+            then
+                chown -R $SUDO_USER:$SUDO_USER persist/$nodeid
+            fi
+
+            name=$prefix$nodeid
+            hex=$(printf "%02x" $nodeid)
+
+            cat <<EOF > persist/$nodeid/var/run/lxc.conf.$nodeid
+lxc.utsname=$name
+lxc.network.type=veth
+lxc.network.name=eth1
+lxc.network.flags=up
+lxc.network.link=$bridge
+lxc.network.hwaddr=02:00:$hex:01:00:01
+lxc.network.ipv4=10.99.0.$nodeid/24
+lxc.network.veth.pair=veth$nodeid.1
+
+lxc.network.type=veth
+lxc.network.name=eth2
+lxc.network.hwaddr=02:00:$hex:02:00:01
+lxc.network.veth.pair=veth$nodeid.2
+
+lxc.network.type = empty
+lxc.network.flags=up
+
+lxc.console = none
+lxc.tty = 1
+lxc.pts = 128
+lxc.cgroup.devices.allow = a
+lxc.mount.entry = $(pwd) $nodevolume none defaults,bind 0 0
+lxc.hook.start = $nodevolume/persist/host/var/run/fixdevptsmount.sh
+EOF
+
+            echo "Starting lxc instance: $name"
+            
+            lxc-execute -f persist/$nodeid/var/run/lxc.conf.$nodeid \
+                -n $name \
+                -o persist/$nodeid/var/log/lxc-execute.log.$nodeid \
+                -- \
+                ../scripts/demo-init \
+                -s "$utctime" \
+                $envcommand \
+                $nodevolume \
+                $nodeid  2> /dev/null &
+
+            while (! test -f persist/$nodeid/var/log/lxc-execute.log.$nodeid)
+            do
+                sleep 1
+            done
+
+        done
+
+        if [ -f transportdaemon.xml ] &&
+            [ ! -f NO-host-emanetransportd ]
+        then
+    
+            start_emanetransportd \
+                transportdaemon.xml \
+                persist/host/var/log/transportdaemon.log \
+                persist/host/var/run/transportdaemon.pid \
+                persist/host/var/run/transportdaemon.uuid
+        fi
+
+        if [ -f platform.xml ] &&
+            [ ! -f NO-host-emane ]
+        then
+            
+            start_emane \
+                platform.xml \
+                persist/host/var/log/emane.log \
+                persist/host/var/run/emane.pid \
+                persist/host/var/run/emane.uuid
+        fi
+        
+        if [ ! -f persist/host/var/run/emaneeventservice.pid ]
+        then
+            if [ -f eventservice.xml ] &&
+                [ ! -f NO-host-emaneeventservice ]
+            then
+                start_emaneeventservice eventservice.xml \
+                    persit/host/var/log/emaneeventservice.log \
+                    persist/host/var/run/emaneeventservice.pid \
+                    persist/host/var/run/emaneeventservice.uuid \
+                    "$starttime"
+            fi
+        else
+            echo "Found an emaneeventservice pid file: unable to start" >&2
+        fi
+        
+        if [ -x ./host-poststart ]
+        then
+            ./host-poststart $demoid $nodecount
+        fi
+        ;;
+
+    stop)
+        OPTIND=2
+
+        # process options
+        while getopts ":ne:" opt; do
+            case $opt in
+                n)
+                    bridgecontrol=0
+                    ;;
+                e)
+                    envcommand="-e $OPTARG"
+                    . "$OPTARG"
+                    ;;   
+                \?)
+                    echo "Invalid option: -$OPTARG" >&2
+                    exit 1
+                    ;;
+            esac
+        done
+
+        shift $((OPTIND - 1))
+
+        if [ $# -ne 2 ]
+        then
+            echo "Invalid number of parameters" >&2
+            exit 1
+        fi
+        
+        shopt -s extglob
+        demoid=$1
+        nodecount=$2
+
+        if [[ $demoid != +([0-9]) ]]
+        then
+            echo "Invalid demo id: $demoid" >&2
+            exit 1
+        fi
+
+        if [[ $nodecount != +([0-9]) ]]
+        then
+            echo "Invalid node count: nodecount" >&2
+            exit 1
+        fi
+
+        if [ ! -f  /var/run/demo.lock ]
+        then
+            echo "There does not appear to be a running demo. No /var/run/demo.lock present." >&2
+            exit 1
+        fi
+
+
+        if [ -x ./host-prestop ]
+        then
+            ./host-prestop $demoid $nodecount
+        fi
+
+        for nodeid in $(seq 1 $nodecount)
+        do
+            echo "Stopping lxc instance: $prefix$nodeid"
+            lxc-stop -n $prefix$nodeid
+        done
+        
+        if [ -f persist/host/var/run/emaneeventservice.pid ]
+        then
+            kill -QUIT $(cat persist/host/var/run/emaneeventservice.pid)
+            rm -f persist/host/var/run/emaneeventservice.pid
+        fi
+                
+        if [ -f persist/host/var/run/emane.pid ]
+        then
+            kill -QUIT $(cat persist/host/var/run/emane.pid)
+            rm -f persist/host/var/run/emane.pid
+        fi
+
+        if [ -f persist/host/var/run/emanetransportd.pid ]
+        then
+            kill -QUIT $(cat persist/host/var/run/emanetransportd.pid)
+            rm -f persist/host/var/run/emanetransportd.pid
+        fi
+        
+        if [[ $bridgecontrol -ne 0 ]]
+        then
+            if (! check_bridge $bridge)
+            then
+                echo "Removing bridge: $bridge"
+                
+                ip link set $bridge down
+                
+                brctl delbr $bridge
+                
+                iptables -D INPUT -i $bridge -j ACCEPT
+                
+                iptables -D FORWARD -i $bridge -j ACCEPT
+            fi
+        fi
+
+        sleep 2
+
+        for vif in $(ifconfig | awk -F : '/veth[0-9]+.[0-9]/{print $1}')
+        do
+            echo "Performing extra cleanup of vif $vif"
+            ip link del dev $vif 2>&1 > /dev/null
+        done
+
+        # paranoia - make sure everything is down
+        for i in $(ps ax | awk '/emaneeventservic[e] /{print $1}')
+        do
+            echo "Performing extra cleanup of emaneeventservice [$i]"
+            kill -9 $i;
+        done
+
+        for i in $(ps ax | awk '/emanetransport[d] /{print $1}')
+        do
+            echo "Performing extra cleanup of emanetransportd [$i]"
+            kill -9 $i;
+        done    
+
+        for i in $(ps ax | awk '/eman[e] /{print $1}')
+        do
+            echo "Performing extra cleanup of emane [$i]"
+            kill -9 $i;
+        done    
+
+        
+        rm -f /var/run/demo.lock
+        ;;
+
+    help)
+        usage 
+        exit 0
+        ;;
+    *)
+        usage
+	      exit 1
+        ;;
+esac

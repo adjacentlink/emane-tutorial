@@ -1,0 +1,3 @@
+#!/bin/bash -
+
+../scripts/democtl-host stop $@ @DEMOID@ @NODECOUNT@

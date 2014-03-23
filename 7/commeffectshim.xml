@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE shim SYSTEM "file:///usr/share/emane/dtd/shim.dtd">
+<shim library="commeffectshim">
+  <param name="defaultconnectivitymode" value="off" />
+  <param name="enablepromiscuousmode" value="off" />
+</shim>
+
+

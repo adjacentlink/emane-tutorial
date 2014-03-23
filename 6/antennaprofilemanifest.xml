@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE profiles SYSTEM "file:///usr/share/emane/dtd/antennaprofile.dtd">
+<profiles>
+  <profile id="1"
+	   antennapatternuri="/var/lib/emanenode/antenna30dsector.xml"
+	   blockagepatternuri="/var/lib/emanenode/blockageaft.xml">
+    <placement north="0" east="0" up="0"/>
+  </profile>
+  <profile id="2"
+	   antennapatternuri="/var/lib/emanenode/antenna30dsector.xml">
+    <placement north="0" east="0" up="0"/>
+  </profile>
+</profiles>

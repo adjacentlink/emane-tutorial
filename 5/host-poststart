@@ -1,0 +1,108 @@
+#!/bin/bash -
+
+echo -n "Waiting for 5 second delay.."
+
+sleep 5
+
+echo 
+
+watch -e -t -n .5 'set -f; \
+                emanesh node-1 get table * mac UnicastPacketAcceptTable0; \
+                emanesh node-2 get table * mac UnicastPacketAcceptTable0 \
+                 UnicastPacketDropTable0 NeighborStatusTable; \
+                if (grep -q STOP persist/2/var/log/mgen.out); then \
+                  echo; \
+                  echo "The demonstration is complete."; \
+                  echo "Please look away, there is nothing more to see."; \
+                  echo "Press any key to continue"; \
+                  echo; \
+                  exit 1;\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>6); then \
+                  echo "== Stage 6 of 6 in progress"; \
+                  echo "   NEM 1 sends 81.92Kbps to NEM 2" ;\
+                  echo "   NEM 4 sends 1.23Mbps to NEM 3";\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>5); then \
+                  echo "== Stage 5 of 6 in progress"; \
+                  echo "   NEM 1 sends 10.24Kbps to NEM 2";\
+                  echo "   NEM 4 sends 1.23Mbps to NEM 3";\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>4); then \
+                  echo "== Stage 4 of 6 in progress"; \
+                  echo "   NEM 1 sends 81.92Kbps to NEM 2";\
+                  echo "   NEM 3 sends 1.23Mbps to NEM 4";\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>3); then \
+                  echo "== Stage 3 of 6 in progress"; \
+                  echo "   NEM 1 sends 10.24Kbps to NEM 2" ;\
+                  echo "   NEM 3 sends 1.23Mbps to NEM 4";\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>2); then \
+                  echo "== Stage 2 of 6 in progress"; \
+                  echo "   NEM 1 sends 81.92Kbps to NEM 2";\
+                elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>1); then \
+                  echo "== Stage 1 of 6 in progress"; \
+                  echo "   NEM 1 sends 10.24Kbps to NEM 2";\
+                else
+                  echo "Waiting for Stage 1 of 6 to start"; \
+                fi\'
+
+
+echo -n "Waiting for demonstration completion.."
+
+while (! grep -q STOP persist/2/var/log/mgen.out)
+do 
+    echo -n "."
+    sleep 1;
+done
+
+echo "done."
+
+node1_flow1_sent=$(grep 'SEND proto>UDP flow>1' persist/1/var/log/mgen.out  | wc -l)
+
+node1_flow2_sent=$(grep 'SEND proto>UDP flow>2' persist/1/var/log/mgen.out  | wc -l)
+
+node1_flow3_sent=$(grep 'SEND proto>UDP flow>3' persist/1/var/log/mgen.out  | wc -l)
+
+node1_flow4_sent=$(grep 'SEND proto>UDP flow>4' persist/1/var/log/mgen.out  | wc -l)
+
+node1_flow5_sent=$(grep 'SEND proto>UDP flow>5' persist/1/var/log/mgen.out  | wc -l)
+
+node1_flow6_sent=$(grep 'SEND proto>UDP flow>6' persist/1/var/log/mgen.out  | wc -l)
+
+
+node2_flow1_recv=$(grep 'RECV proto>UDP flow>1' persist/2/var/log/mgen.out  | wc -l)
+
+node2_flow2_recv=$(grep 'RECV proto>UDP flow>2' persist/2/var/log/mgen.out  | wc -l)
+
+node2_flow3_recv=$(grep 'RECV proto>UDP flow>3' persist/2/var/log/mgen.out  | wc -l)
+
+node2_flow4_recv=$(grep 'RECV proto>UDP flow>4' persist/2/var/log/mgen.out  | wc -l)
+
+node2_flow5_recv=$(grep 'RECV proto>UDP flow>5' persist/2/var/log/mgen.out  | wc -l)
+
+node2_flow6_recv=$(grep 'RECV proto>UDP flow>6' persist/2/var/log/mgen.out  | wc -l)
+
+echo
+
+printf "Stage   %-6s %-6s %-6s %-6s %-6s %-6s\n" 1 2 3 4 5 6
+
+printf -- "-----   %-6s %-6s %-6s %-6s %-6s %-6s\n" \
+    "------" "------" "------" "------" "------" "------"
+
+printf "Tx 1    %-6s %-6s %-6s %-6s %-6s %-6s\n" \
+    $node1_flow1_sent $node1_flow2_sent $node1_flow3_sent \
+    $node1_flow4_sent $node1_flow5_sent $node1_flow6_sent
+
+printf "Rx 2    %-6s %-6s %-6s %-6s %-6s %-6s\n" \
+    $node2_flow1_recv $node2_flow2_recv $node2_flow3_recv \
+    $node2_flow4_recv $node2_flow5_recv $node2_flow6_recv
+
+printf -- "-----   %-6s %-6s %-6s %-6s %-6s %-6s\n" \
+    "------" "------" "------" "------" "------" "------"
+
+printf "Comp%%   %-6.2f %-6.2f %-6.2f %-6.2f %-6.2f %-6.2f\n" \
+    $(echo "scale=9; $node2_flow1_recv/$node1_flow1_sent * 100.0;" | bc 2> /dev/null) \
+    $(echo "scale=9; $node2_flow2_recv/$node1_flow2_sent * 100.0;" | bc 2> /dev/null) \
+    $(echo "scale=9; $node2_flow3_recv/$node1_flow3_sent * 100.0;" | bc 2> /dev/null) \
+    $(echo "scale=9; $node2_flow4_recv/$node1_flow4_sent * 100.0;" | bc 2> /dev/null) \
+    $(echo "scale=9; $node2_flow5_recv/$node1_flow5_sent * 100.0;" | bc 2> /dev/null) \
+    $(echo "scale=9; $node2_flow6_recv/$node1_flow6_sent * 100.0;" | bc 2> /dev/null) 
+
+echo
