@@ -447,10 +447,10 @@ EOF
             rm -f persist/host/var/run/emane.pid
         fi
 
-        if [ -f persist/host/var/run/emanetransportd.pid ]
+        if [ -f persist/host/var/run/transportdaemon.pid ]
         then
-            kill -QUIT $(cat persist/host/var/run/emanetransportd.pid)
-            rm -f persist/host/var/run/emanetransportd.pid
+            kill -QUIT $(cat persist/host/var/run/transportdaemon.pid)
+            rm -f persist/host/var/run/transportdaemon.pid
         fi
         
         if [[ $bridgecontrol -ne 0 ]]
