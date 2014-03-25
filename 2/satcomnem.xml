@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nem SYSTEM "file:///usr/share/emane/dtd/nem.dtd">
+<nem>
+  <mac definition="rfpipemac.xml">
+    <param name="datarate"                 value="100K"/>
+    <param name="delay"                    value=".1"/>
+  </mac>
+  <phy>
+    <param name="fixedantennagain"         value="0.0"/>
+    <param name="fixedantennagainenable"   value="on"/>
+    <param name="bandwidth"                value="1M"/>
+    <param name="noisemode"                value="outofband"/>
+    <param name="propagationmodel"         value="precomputed"/>
+    <param name="systemnoisefigure"        value="4.0"/>
+    <param name="txpower"                  value="0.0"/>
+    <param name="subid"                    value="10"/>
+    <param name="frequencyofinterest"      value="2.1G"/> 
+    <param name="frequency"                value="2.1G"/>
+  </phy>
+  <transport definition="transvirtual.xml"/>
+</nem>

@@ -1,0 +1,9 @@
+0.0 nem:1 pathloss nem:2,90 nem:3,90
+0.0 nem:2 pathloss nem:1,90 nem:3,90
+0.0 nem:3 pathloss nem:1,90 nem:2,90
+0.0 nem:4 pathloss nem:5,90 nem:6,90
+0.0 nem:5 pathloss nem:4,90 nem:6,90
+0.0 nem:6 pathloss nem:4,90 nem:5,90
+0.0 nem:7 pathloss nem:8,90 nem:9,90
+0.0 nem:8 pathloss nem:7,90 
+0.0 nem:9 pathloss nem:7,90

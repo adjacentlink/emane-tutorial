@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE platform SYSTEM "file:///usr/share/emane/dtd/platform.dtd">
+<platform>
+  <param name="otamanagerchannelenable" value="on"/>
+  <param name="otamanagerdevice" value="eth1"/>
+  <param name="otamanagergroup" value="224.1.2.8:45702"/>
+  <param name="eventservicegroup" value="224.1.2.8:45703"/>
+  <param name="eventservicedevice" value="eth1"/>
+  <param name="controlportendpoint" value="0.0.0.0:47000"/>
+  <param name="antennaprofilemanifesturi" value="antennaprofilemanifest.xml"/>
+
+  <nem id="4" definition="rfpipenem.xml">
+    <param name="platformendpoint" value="127.0.0.1:8201"/>
+    <param name="transportendpoint" value="127.0.0.1:8301"/>
+    <phy>
+      <param name="fixedantennagainenable" value="off"/>
+    </phy>
+    <transport definition="transvirtual.xml">
+      <param name="address" value="10.100.0.4"/>
+      <param name="mask" value="255.255.255.0"/>
+    </transport>
+    </nem>
+</platform>

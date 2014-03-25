@@ -1,0 +1,8 @@
+#!/bin/bash -
+
+echo "Collecting statistics and configuration from host"
+emanesh localhost show >  persist/host/var/log/emane.show
+emanesh localhost get stat '*' all >  persist/host/var/log/emane.stats
+emanesh localhost get table '*' all >  persist/host/var/log/emane.tables
+emanesh localhost get config '*' all >  persist/host/var/log/emane.config
+

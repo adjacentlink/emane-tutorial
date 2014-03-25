@@ -1,0 +1,459 @@
+#!/bin/bash -
+#
+# Copyright (c) 2014 - Adjacent Link LLC, Bridgewater, New Jersey
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# * Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+# * Neither the name of Adjacent Link LLC nor the names of its
+#   contributors may be used to endorse or promote products derived
+#   from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+start_sshd()
+{
+    local pidfile=$1
+    
+    /usr/sbin/sshd -o "PidFile=$pidfile"
+}
+
+start_emanetransportd()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+    
+    if [ -f $xml ]; then
+
+        echo "Starting emanetransport: $xml"
+
+        emanetransportd -r -d "$xml" -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+
+        echo "Missing emaneeventd XML: $xml"
+
+        retval=1
+    fi
+    
+    return $retval
+}
+
+start_emaneeventd_and_wait_for_gpspty()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+    local pty=$5
+    
+    if [ -f $xml ]; then
+
+        echo "Starting emaneeventd: $xml"
+
+        rm -f "$pty"
+
+        emaneeventd -r -d "$xml" -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+        
+        if [[ $retval == 0 ]]; then
+
+            echo "Waiting for GPS Locatopn PTY: $pty"
+            
+            while (! test -f "$pty")
+            do
+                sleep 1
+            done
+        fi
+        
+    else
+        echo "Missing emaneeventd XML: $xml"
+        retval=1
+    fi
+
+    return $retval
+}
+
+start_emane()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting emane: $xml"
+
+        emane "$xml" -r -d -l 3 -f "$logfile" \
+            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing emane XML: $xml"
+        retval=1
+    fi
+    
+    return $retval
+}
+
+start_routing()
+{
+    local routingconf=$1
+    olsrd -f "$routingconf"
+}
+
+start_mgen()
+{
+    local mgeninput=$1
+    local mgenoutput=$2
+    local pidfile=$3
+    local logfile=$4
+    local starttime="$5"
+
+    local startoption=""
+
+    if [ -n "$starttime" ]; then
+        startoption="start $(date --date "$starttime" "+%H:%M:%S" --utc)GMT"
+        echo "Starting mgen: input $mgeninput output $mgenoutput $startoption"
+    else
+        echo "Starting mgen: input $mgeninput output $mgenoutput now"
+    fi
+
+    nohup mgen             \
+        input $mgeninput   \
+        output $mgenoutput \
+        $startoption       \
+        txlog &> $logfile &
+
+    echo $! > $pidfile
+}
+
+start_iperf()
+{
+    local inputfile=$1
+    local logfile=$2
+    local pidfile=$3
+    local starttime="$4"
+
+    # iperf servers do not wait for start time
+    if (! grep -q '\-s ' $inputfile)
+    then
+        start=$(date --date "$starttime" "+%s")
+
+        while [[ $(date "+%s") -lt $start ]]
+        do
+            sleep 1
+        done
+    fi
+
+    echo "Starting iperf: $inputfile at $starttime"
+
+    nohup iperf $(head -n 1 $inputfile) &> $logfile &
+
+    echo $! > $pidfile
+}
+
+start_gpsd()
+{
+    local pty=$1
+    local pidfile=$2
+
+    echo "Starting gpsd: $pty"
+    gpsd -P $pidfile -G -n -b `cat $pty`
+}
+
+wait_for_device()
+{
+    local device=$1
+    local timeout=$2
+    local waited=0
+
+    echo -n "waiting for $device..."
+
+    while(! route -n | grep -q $device); do
+        
+        if [ $waited -lt $timeout ]; then
+            sleep 1
+            waited=$(($waited + 1))
+        else
+            echo "not found"
+            return 1
+        fi
+    done
+    
+    echo "found"
+    return 0
+}
+
+wait_for_gpspty()
+{
+    local pty=$1
+    
+    echo "Waiting for GPS Locatopn PTY: $pty"
+    
+    while (! test -f "$pty")
+    do
+        sleep 1
+    done
+    echo "found"
+    return $0
+}
+
+usage()
+{
+    echo
+    echo " usage: emanedemo-init [OPTIONS]... DEMODIR NODEID"
+    echo
+    echo " options:"
+    echo "  -h            Print this usage and exit"
+    echo "  -e ENVFILE    Environment file to source"
+    echo "  -s STARTTIME  Demo scenario start time HH:MM:SS UTC"
+    echo
+}
+
+
+export PATH=$PATH:/sbin:/usr/sbin
+
+starttime=
+
+# process options
+while getopts ":s:e:h" opt; do
+    case $opt in
+        s)
+            starttime="$OPTARG"
+            ;;
+        e)
+            . "$OPTARG"
+            ;;
+        h) 
+            usage
+            exit 0
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ $#  -ne 2 ]
+then
+    echo "Invalid number of arguments" >&2
+    exit 1
+fi
+
+if [ -d "$1" ]
+then
+    cd "$1"
+else
+    echo "Invalid demo directory: $1" >&2
+    exit 1  
+fi
+
+
+nodeId=$2
+
+if [ -x ./node-prestart ]
+then
+    ./node-prestart $nodeId
+elif [ -x node-prestart$nodeId ]
+then
+    ./node-prestart$nodeId $nodeId
+fi
+
+start_sshd persist/$nodeId/var/run/ssh.pid
+
+if [ -f transportdaemon$nodeId.xml ] && 
+    [ ! -f NO-node-emanetransportd$nodeId ] && 
+    [ ! -f NO-node-emanetransportd ]
+then
+    
+    start_emanetransportd \
+        transportdaemon$nodeId.xml \
+        persist/$nodeId/var/log/transportdaemon.log \
+        persist/$nodeId/var/run/transportdaemon.pid \
+        persist/$nodeId/var/run/transportdaemon.uuid
+    
+    wait_for_device emane0 10
+fi
+
+if [ -f platform$nodeId.xml ] &&
+    [ ! -f NO-node-emane$nodeId ] && 
+    [ ! -f NO-node-emane ]
+then
+    
+    start_emane \
+        platform$nodeId.xml \
+        persist/$nodeId/var/log/emane.log \
+        persist/$nodeId/var/run/emane.pid \
+        persist/$nodeId/var/run/emane.uuid
+    
+fi
+
+if [ -f eventdaemon$nodeId.xml ] &&
+    [ ! -f NO-node-emaneeventd$nodeId ] && 
+    [ ! -f NO-node-emaneeventd ]
+then
+    start_emaneeventd_and_wait_for_gpspty \
+        eventdaemon$nodeId.xml \
+        persist/$nodeId/var/log/emaneeventd.log  \
+        persist/$nodeId/var/run/emaneeventd.pid  \
+        persist/$nodeId/var/run/emaneeventd.uuid \
+        persist/$nodeId/var/run/gps.pty
+    
+    start_gpsd \
+        persist/$nodeId/var/run/gps.pty \
+        persist/$nodeId/var/run/gpsd.pid
+fi
+
+
+if [ -x ./node-preapplication ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+    
+    ./node-preapplication $nodeId
+elif [ -x node-preapplication$nodeId ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    ./node-preapplication$nodeId $nodeId
+fi
+
+
+if [ -f routing$nodeId.conf ] &&
+    [ ! -f NO-node-routing$nodeId ] && 
+    [ ! -f NO-node-routing ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    start_routing routing$nodeId.conf
+    
+elif [ -f routing.conf ] &&
+    [ ! -f NO-node-routing$nodeId ] && 
+    [ ! -f NO-node-routing ]
+then 
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+   
+    start_routing routing.conf
+    
+fi
+
+if [ -f mgen$nodeId ] &&
+    [ ! -f NO-node-mgen$nodeId ] && 
+    [ ! -f NO-node-mgen ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    start_mgen \
+        mgen$nodeId \
+        persist/$nodeId/var/log/mgen.out \
+        persist/$nodeId/var/run/mgen.pid \
+        persist/$nodeId/var/log/mgen.log \
+        "$starttime"
+
+elif [ -f mgen ] &&
+    [ ! -f NO-node-mgen$nodeId ] && 
+    [ ! -f NO-node-mgen ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    start_mgen \
+        mgen \
+        persist/$nodeId/var/log/mgen.out \
+        persist/$nodeId/var/run/mgen.pid \
+        persist/$nodeId/var/log/mgen.log \
+        "$starttime"
+fi
+
+if [ -f iperf$nodeId ] &&
+    [ ! -f NO-node-iperf$nodeId ] && 
+    [ ! -f NO-node-iperf ]
+then
+
+    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    start_iperf \
+        iperf$nodeId \
+        persist/$nodeId/var/log/iperf.log \
+        persist/$nodeId/var/run/iperf.pid \
+        "$starttime"
+
+elif [ -f iperf ] &&
+    [ ! -f NO-node-iperf$nodeId ] && 
+    [ ! -f NO-node-iperf ]
+then
+
+    if [ -f persist/$nodeId/var/run/transportdaemon.pid ]
+    then
+        wait_for_device emane0 10
+    fi
+
+    start_iperf \
+        iperf \
+        persist/$nodeId/var/log/iperf.log \
+        persist/$nodeId/var/run/iperf.pid \
+        "$starttime"
+fi
+
+if [ -x ./node-poststart ]
+then
+    ./node-poststart $nodeId
+elif [ -x node-poststart$nodeId ]
+then
+    ./node-poststart$nodeId $nodeId
+fi

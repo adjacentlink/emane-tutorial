@@ -1,0 +1,18 @@
+#!/bin/bash -
+
+if [ $# -ne 2 ]
+   then
+    "host-poststart: invalid number of arguments" >&2 
+    exit 1
+fi
+
+demo=$1
+count=$2
+
+echo -n "Waiting for 5 second delay.."
+
+sleep 5
+
+echo "Running host-poststart demo $demo node count $2"
+
+emaneevent-dump -i emanenode0
