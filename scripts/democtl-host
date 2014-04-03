@@ -35,9 +35,11 @@ bridge=emanenode0
 nodevolume=/var/lib/emanenode
 bridgecontrol=1
 
+lxcmajorversion=$(lxc-version | awk -F: '{print $2}' | awk -F. '{print $1}')
+
 check_bridge()
 {
-    return $(brctl show | awk "/^$1\s+/{exit 1}") 
+    return $(brctl show | awk "/^$1[\t\s]+/{exit 1}") 
 }
 
 check_euid()
@@ -309,7 +311,13 @@ lxc.pts = 128
 lxc.cgroup.devices.allow = a
 lxc.mount.entry = $(pwd) $nodevolume none defaults,bind 0 0
 lxc.hook.start = $nodevolume/persist/host/var/run/fixdevptsmount.sh
+
 EOF
+
+           if [[ $lxcmajorversion -ne 0 ]]
+           then
+               echo "lxc.aa_profile = unconfined" >> persist/$nodeid/var/run/lxc.conf.$nodeid
+           fi
 
             echo "Starting lxc instance: $name"
             
@@ -432,7 +440,14 @@ EOF
         for nodeid in $(seq 1 $nodecount)
         do
             echo "Stopping lxc instance: $prefix$nodeid"
-            lxc-stop -n $prefix$nodeid
+
+            if [[ $lxcmajorversion -ne 0 ]]
+            then
+                lxc-stop -n $prefix$nodeid -k
+            else
+                lxc-stop -n $prefix$nodeid
+            fi
+
         done
         
         if [ -f persist/host/var/run/emaneeventservice.pid ]
@@ -471,7 +486,7 @@ EOF
 
         sleep 2
 
-        for vif in $(ifconfig | awk -F : '/veth[0-9]+.[0-9]/{print $1}')
+        for vif in $(ip link show | awk -F : '/veth[0-9]+\.[0-9]/{print $2}')
         do
             echo "Performing extra cleanup of vif $vif"
             ip link del dev $vif 2>&1 > /dev/null
