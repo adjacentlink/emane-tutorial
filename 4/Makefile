@@ -24,5 +24,5 @@ GENERATED_EXTRA=     \
 include ../rules.mk
 
 node-preapplication:
-	echo -e "#!/bin/bash -\nifconfig emane0 txqueuelen 8192\n" > $@
+	printf "#!/bin/bash -\nifconfig emane0 txqueuelen 8192\n" > $@
 	chmod 755 $@
