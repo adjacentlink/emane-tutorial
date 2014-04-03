@@ -39,9 +39,9 @@ watch -e -t -n .5 'set -f; \
                 elif (tac persist/1/var/log/mgen.out | grep -q -l  flow\>1); then \
                   echo "== Stage 1 of 6 in progress"; \
                   echo "   NEM 1 sends 10.24Kbps to NEM 2";\
-                else
+                else \
                   echo "Waiting for Stage 1 of 6 to start"; \
-                fi\'
+                fi'
 
 
 echo -n "Waiting for demonstration completion.."
