@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE nem SYSTEM "file:///usr/share/emane/dtd/nem.dtd">
 <nem>
+  <transport definition="transvirtual.xml"/>
   <mac definition="rfpipemac.xml">
     <param name="datarate"                 value="100K"/>
     <param name="delay"                    value=".1"/>
@@ -17,5 +18,4 @@
     <param name="frequencyofinterest"      value="2.1G"/> 
     <param name="frequency"                value="2.1G"/>
   </phy>
-  <transport definition="transvirtual.xml"/>
 </nem>

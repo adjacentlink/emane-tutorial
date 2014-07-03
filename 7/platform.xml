@@ -7,82 +7,62 @@
   <param name="controlportendpoint" value="0.0.0.0:47000"/>
 
   <nem id="1" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8201"/>
-    <param name="transportendpoint" value="localhost:8301"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth1.2"/>
     </transport>
   </nem>
 
   <nem id="2" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8202"/>
-    <param name="transportendpoint" value="localhost:8302"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth2.2"/>
     </transport>
   </nem>
 
 
   <nem id="3" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8203"/>
-    <param name="transportendpoint" value="localhost:8303"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth3.2"/>
     </transport>
   </nem>
 
   <nem id="4" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8204"/>
-    <param name="transportendpoint" value="localhost:8304"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth4.2"/>
     </transport>
   </nem>
 
   <nem id="5" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8205"/>
-    <param name="transportendpoint" value="localhost:8305"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth5.2"/>
     </transport>
   </nem>
 
   <nem id="6" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8206"/>
-    <param name="transportendpoint" value="localhost:8306"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth6.2"/>
     </transport>
   </nem>
 
   <nem id="7" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8207"/>
-    <param name="transportendpoint" value="localhost:8307"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth7.2"/>
     </transport>
   </nem>
 
   <nem id="8" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8208"/>
-    <param name="transportendpoint" value="localhost:8308"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth8.2"/>
     </transport>
   </nem>
 
   <nem id="9" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8209"/>
-    <param name="transportendpoint" value="localhost:8309"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth9.2"/>
     </transport>
   </nem>
 
   <nem id="10" definition="commeffectnem.xml">
-    <param name="platformendpoint" value="localhost:8210"/>
-    <param name="transportendpoint" value="localhost:8310"/>
-    <transport definition="transraw.xml" group="alpha">
+    <transport definition="transraw.xml">
       <param name="device" value="veth10.2"/>
     </transport>
   </nem>

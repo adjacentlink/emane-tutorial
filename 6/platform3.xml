@@ -10,14 +10,12 @@
   <param name="antennaprofilemanifesturi" value="antennaprofilemanifest.xml"/>
 
   <nem id="3" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="127.0.0.1:8201"/>
-    <param name="transportendpoint" value="127.0.0.1:8301"/>
-    <phy>
-      <param name="fixedantennagain" value="5"/>
-    </phy>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.3"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
-    </nem>
+    <phy>
+      <param name="fixedantennagain" value="5"/>
+    </phy>
+  </nem>
 </platform>
