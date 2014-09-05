@@ -9,8 +9,12 @@
   <param name="controlportendpoint" value="0.0.0.0:47000"/>
 
   <nem id="4" definition="ieee80211abgnem.xml">
-    <param name="platformendpoint" value="127.0.0.1:8201"/>
-    <param name="transportendpoint" value="127.0.0.1:8301"/>
+    <transport definition="transvirtual.xml">
+      <param name="address" value="10.100.0.4"/>
+      <param name="mask" value="255.255.255.0"/>
+      <param name="flowcontrolenable" value="on"/>
+      <param name="devicepath" value="/dev/net/tun_flowctl"/>
+    </transport>
     <mac definition="ieee80211abgmac.xml">
       <param name="flowcontrolenable" value="on"/>
     </mac>
@@ -18,10 +22,5 @@
       <param name="frequencyofinterest" value="3G"/> 
       <param name="frequency" value="3G"/>
     </phy>
-    <transport definition="transvirtual.xml">
-      <param name="address" value="10.100.0.4"/>
-      <param name="mask" value="255.255.255.0"/>
-      <param name="flowcontrolenable" value="on"/>
-    </transport>
     </nem>
 </platform>

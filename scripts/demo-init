@@ -281,6 +281,9 @@ fi
 
 nodeId=$2
 
+# fix devpts
+mount /dev/pts -o remount,rw,mode=620,ptmxmode=666,gid=5
+
 if [ -x ./node-prestart ]
 then
     ./node-prestart $nodeId

@@ -9,8 +9,6 @@
   <param name="controlportendpoint" value="0.0.0.0:47000"/>
 
   <nem id="3" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="127.0.0.1:8201"/>
-    <param name="transportendpoint" value="127.0.0.1:8301"/>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.3"/>
       <param name="mask" value="255.255.255.0"/>

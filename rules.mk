@@ -66,7 +66,7 @@ $(PLATFORMDEPS): .%-dep:%
 	mkdir .emanegentransportxml && \
 	 cd .emanegentransportxml &&   \
 	 emanegentransportxml ../$< && \
-	 for i in *.xml; do chmod g-w,u-w $$i; cp -f $$i ..; done && \
+	 for i in $$(ls *.xml); do chmod g-w,u-w $$i; cp -f $$i ..; done && \
 	 cd .. && \
 	 rm -rf .emanegentransportxml
 	@touch $@

@@ -6,85 +6,85 @@
   <param name="eventservicedevice" value="lo"/>
   <param name="controlportendpoint" value="0.0.0.0:47000"/>
 
-  <nem id="1" definition="rfpipenem.xml">
+  <nem id="1" definition="rfpipenem.xml" transport="external">
     <param name="platformendpoint" value="10.99.0.100:8201"/>
     <param name="transportendpoint" value="10.99.0.1:8301"/>
-    <phy>
-      <param name="frequencyofinterest" value="2.347G"/> 
-      <param name="frequency" value="2.347G"/>
-    </phy>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.1"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
-  </nem>
-
-  <nem id="2" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="10.99.0.100:8202"/>
-    <param name="transportendpoint" value="10.99.0.2:8302"/>
     <phy>
       <param name="frequencyofinterest" value="2.347G"/> 
       <param name="frequency" value="2.347G"/>
     </phy>
+  </nem>
+
+  <nem id="2" definition="rfpipenem.xml" transport="external">
+    <param name="platformendpoint" value="10.99.0.100:8202"/>
+    <param name="transportendpoint" value="10.99.0.2:8302"/>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.2"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
-  </nem>
-
-  <nem id="3" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="10.99.0.100:8203"/>
-    <param name="transportendpoint" value="10.99.0.3:8303"/>
     <phy>
       <param name="frequencyofinterest" value="2.347G"/> 
       <param name="frequency" value="2.347G"/>
     </phy>
+  </nem>
+
+  <nem id="3" definition="rfpipenem.xml" transport="external">
+    <param name="platformendpoint" value="10.99.0.100:8203"/>
+    <param name="transportendpoint" value="10.99.0.3:8303"/>
     <transport definition="transvirtual.xml" group="3-8">
       <param name="address" value="10.100.0.3"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
+    <phy>
+      <param name="frequencyofinterest" value="2.347G"/> 
+      <param name="frequency" value="2.347G"/>
+    </phy>
   </nem>
 
-  <nem id="4" definition="rfpipenem.xml">
+  <nem id="4" definition="rfpipenem.xml" transport="external">
     <param name="platformendpoint" value="10.99.0.100:8204"/>
     <param name="transportendpoint" value="10.99.0.4:8304"/>
-    <phy>
-      <param name="frequencyofinterest" value="3G"/> 
-      <param name="frequency" value="3G"/>
-    </phy>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.4"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
-  </nem>
-
-  <nem id="5" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="10.99.0.100:8205"/>
-    <param name="transportendpoint" value="10.99.0.5:8305"/>
     <phy>
       <param name="frequencyofinterest" value="3G"/> 
       <param name="frequency" value="3G"/>
     </phy>
+  </nem>
+
+  <nem id="5" definition="rfpipenem.xml" transport="external">
+    <param name="platformendpoint" value="10.99.0.100:8205"/>
+    <param name="transportendpoint" value="10.99.0.5:8305"/>
     <transport definition="transvirtual.xml">
       <param name="address" value="10.100.0.5"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
-  </nem>
-
-  <nem id="6" definition="rfpipenem.xml">
-    <param name="platformendpoint" value="10.99.0.100:8206"/>
-    <param name="transportendpoint" value="10.99.0.6:8306"/>
     <phy>
       <param name="frequencyofinterest" value="3G"/> 
       <param name="frequency" value="3G"/>
     </phy>
+  </nem>
+
+  <nem id="6" definition="rfpipenem.xml" transport="external">
+    <param name="platformendpoint" value="10.99.0.100:8206"/>
+    <param name="transportendpoint" value="10.99.0.6:8306"/>
     <transport definition="transvirtual.xml" group="9-6">
       <param name="address" value="10.100.0.6"/>
       <param name="mask" value="255.255.255.0"/>
     </transport>
+    <phy>
+      <param name="frequencyofinterest" value="3G"/> 
+      <param name="frequency" value="3G"/>
+    </phy>
   </nem>
 
-  <nem id="7" definition="satcomnem.xml">
+  <nem id="7" definition="satcomnem.xml" transport="external">
     <param name="platformendpoint" value="10.99.0.100:8207"/>
     <param name="transportendpoint" value="10.99.0.7:8307"/>
     <transport definition="transvirtual.xml">
@@ -93,7 +93,7 @@
     </transport>
   </nem>
 
-  <nem id="8" definition="satcomnem.xml">
+  <nem id="8" definition="satcomnem.xml" transport="external">
     <param name="platformendpoint" value="10.99.0.100:8208"/>
     <param name="transportendpoint" value="10.99.0.3:8308"/>
     <transport definition="transvirtual.xml" group="3-8">
@@ -103,7 +103,7 @@
     </transport>
   </nem>
 
-  <nem id="9" definition="satcomnem.xml">
+  <nem id="9" definition="satcomnem.xml" transport="external">
     <param name="platformendpoint" value="10.99.0.100:8209"/>
     <param name="transportendpoint" value="10.99.0.6:8309"/>
     <transport definition="transvirtual.xml" group="9-6">

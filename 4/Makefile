@@ -18,11 +18,7 @@ GENERATED_MGENINPUTS=
 
 GENERATED_ROUTINGCONFS=          
 
-GENERATED_EXTRA=     \
- node-preapplication
+GENERATED_EXTRA=
 
 include ../rules.mk
 
-node-preapplication:
-	printf "#!/bin/bash -\nifconfig emane0 txqueuelen 8192\n" > $@
-	chmod 755 $@
