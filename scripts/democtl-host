@@ -34,8 +34,13 @@ prefix=node-
 bridge=emanenode0
 nodevolume=/var/lib/emanenode
 bridgecontrol=1
+lxcmajorversion=
 
-lxcmajorversion=$(lxc-version | awk -F: '{print $2}' | awk -F. '{print $1}')
+if (which lxc-version &> /dev/null); then
+    lxcmajorversion=$(lxc-version | awk -F: '{print $2}' | awk -F. '{print $1}')
+else
+    lxcmajorversion=$(lxc-stop --version  | awk -F. '{print $1}')
+fi
 
 check_bridge()
 {
@@ -265,13 +270,6 @@ case "$1" in
         # disable realtime scheduling contraints
         sysctl kernel.sched_rt_runtime_us=-1
 
-        cat <<EOF > persist/host/var/run/fixdevptsmount.sh
-#!/bin/bash -
-mount /dev/pts -o remount,rw,mode=620,ptmxmode=666,gid=5
-EOF
-            
-        chmod o+x persist/host/var/run/fixdevptsmount.sh
-       
         for nodeid in $(seq 1 $nodecount)
         do
             mkdir -p persist/$nodeid/var/log
@@ -310,7 +308,6 @@ lxc.tty = 1
 lxc.pts = 128
 lxc.cgroup.devices.allow = a
 lxc.mount.entry = $(pwd) $nodevolume none defaults,bind 0 0
-lxc.hook.start = $nodevolume/persist/host/var/run/fixdevptsmount.sh
 
 EOF
 
