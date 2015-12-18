@@ -17,7 +17,7 @@ DebugLevel	0
 
 IpVersion	4
 
-LockFile "/var/lib/emanenode/persist/@NODEID@/var/run/olsrd.lock"
+LockFile "@TOPDIR@/@DEMOID@/persist/@NODEID@/var/run/olsrd.lock"
 
 # Clear the screen each time the internal state changes
 

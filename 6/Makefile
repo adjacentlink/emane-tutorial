@@ -30,5 +30,7 @@ GENERATED_ROUTINGCONFS=          \
  routing3.conf                   \
  routing4.conf                   
 
+GENERATED_EXTRA=                 \
+ antennaprofilemanifest.xml
 
 include ../rules.mk
