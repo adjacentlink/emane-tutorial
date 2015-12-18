@@ -42,10 +42,8 @@ edit= sed -e 's|@NEMID[@]|$*|g'                                        \
           -e 's|@NODEID[@]|$*|g'                                       \
           -e 's|@NODEIDHEX[@]|$(shell printf "%02x" $*)|g'             \
           -e 's|@DEMOID[@]|$(DEMO_ID)|g'                               \
-          -e 's|@LXCNODEROOT[@]|$(LXC_ROOT)/$(DEMO_ID)/$*|g'           \
-          -e 's|@EMANEDEMOROOT[@]|$(shell cd $(TOP_DIR) && pwd)|g'     \
           -e 's|@NEMXML[@]|$(NEM_XML)|g '                              \
-          -e 's|@PWD[@]|$(shell pwd)|g '                               \
+          -e 's|@TOPDIR[@]|$(shell dirname $$(pwd))|g'             \
           -e 's|@NODECOUNT[@]|$(shell if [ -n "$(NODE_COUNT)" ];       \
                                       then                             \
                                         echo $(NODE_COUNT);            \

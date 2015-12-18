@@ -1,3 +1,3 @@
 #!/bin/bash -
 
-../scripts/democtl-host start "$@" @DEMOID@ @NODECOUNT@
+../scripts/democtl-host start "$@" "@TOPDIR@" @DEMOID@ @NODECOUNT@

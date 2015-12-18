@@ -1,6 +1,6 @@
 #!/bin/bash -
 #
-# Copyright (c) 2014 - Adjacent Link LLC, Bridgewater, New Jersey
+# Copyright (c) 2014-2015 - Adjacent Link LLC, Bridgewater, New Jersey
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -292,7 +292,7 @@ then
     ./node-prestart$nodeId $nodeId
 fi
 
-start_sshd persist/$nodeId/var/run/ssh.pid
+start_sshd $PWD/persist/$nodeId/var/run/ssh.pid
 
 if [ -f transportdaemon$nodeId.xml ] && 
     [ ! -f NO-node-emanetransportd$nodeId ] && 
@@ -301,9 +301,9 @@ then
     
     start_emanetransportd \
         transportdaemon$nodeId.xml \
-        persist/$nodeId/var/log/transportdaemon.log \
-        persist/$nodeId/var/run/transportdaemon.pid \
-        persist/$nodeId/var/run/transportdaemon.uuid
+        $PWD/persist/$nodeId/var/log/transportdaemon.log \
+        $PWD/persist/$nodeId/var/run/transportdaemon.pid \
+        $PWD/persist/$nodeId/var/run/transportdaemon.uuid
     
     wait_for_device emane0 10
 fi
@@ -315,9 +315,9 @@ then
     
     start_emane \
         platform$nodeId.xml \
-        persist/$nodeId/var/log/emane.log \
-        persist/$nodeId/var/run/emane.pid \
-        persist/$nodeId/var/run/emane.uuid
+        $PWD/persist/$nodeId/var/log/emane.log \
+        $PWD/persist/$nodeId/var/run/emane.pid \
+        $PWD/persist/$nodeId/var/run/emane.uuid
     
 fi
 
@@ -327,21 +327,21 @@ if [ -f eventdaemon$nodeId.xml ] &&
 then
     start_emaneeventd_and_wait_for_gpspty \
         eventdaemon$nodeId.xml \
-        persist/$nodeId/var/log/emaneeventd.log  \
-        persist/$nodeId/var/run/emaneeventd.pid  \
-        persist/$nodeId/var/run/emaneeventd.uuid \
-        persist/$nodeId/var/run/gps.pty
+        $PWD/persist/$nodeId/var/log/emaneeventd.log  \
+        $PWD/persist/$nodeId/var/run/emaneeventd.pid  \
+        $PWD/persist/$nodeId/var/run/emaneeventd.uuid \
+        $PWD/persist/$nodeId/var/run/gps.pty
     
     start_gpsd \
-        persist/$nodeId/var/run/gps.pty \
-        persist/$nodeId/var/run/gpsd.pid
+        $PWD/persist/$nodeId/var/run/gps.pty \
+        $PWD/persist/$nodeId/var/run/gpsd.pid
 fi
 
 
 if [ -x ./node-preapplication ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
@@ -350,7 +350,7 @@ then
 elif [ -x node-preapplication$nodeId ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
@@ -364,7 +364,7 @@ if [ -f routing$nodeId.conf ] &&
     [ ! -f NO-node-routing ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
@@ -376,7 +376,7 @@ elif [ -f routing.conf ] &&
     [ ! -f NO-node-routing ]
 then 
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
@@ -390,16 +390,16 @@ if [ -f mgen$nodeId ] &&
     [ ! -f NO-node-mgen ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
 
     start_mgen \
         mgen$nodeId \
-        persist/$nodeId/var/log/mgen.out \
-        persist/$nodeId/var/run/mgen.pid \
-        persist/$nodeId/var/log/mgen.log \
+        $PWD/persist/$nodeId/var/log/mgen.out \
+        $PWD/persist/$nodeId/var/run/mgen.pid \
+        $PWD/persist/$nodeId/var/log/mgen.log \
         "$starttime"
 
 elif [ -f mgen ] &&
@@ -407,16 +407,16 @@ elif [ -f mgen ] &&
     [ ! -f NO-node-mgen ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
 
     start_mgen \
         mgen \
-        persist/$nodeId/var/log/mgen.out \
-        persist/$nodeId/var/run/mgen.pid \
-        persist/$nodeId/var/log/mgen.log \
+        $PWD/persist/$nodeId/var/log/mgen.out \
+        $PWD/persist/$nodeId/var/run/mgen.pid \
+        $PWD/persist/$nodeId/var/log/mgen.log \
         "$starttime"
 fi
 
@@ -425,15 +425,15 @@ if [ -f iperf$nodeId ] &&
     [ ! -f NO-node-iperf ]
 then
 
-    if [ -f  persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
 
     start_iperf \
         iperf$nodeId \
-        persist/$nodeId/var/log/iperf.log \
-        persist/$nodeId/var/run/iperf.pid \
+        $PWD/persist/$nodeId/var/log/iperf.log \
+        $PWD/persist/$nodeId/var/run/iperf.pid \
         "$starttime"
 
 elif [ -f iperf ] &&
@@ -441,15 +441,15 @@ elif [ -f iperf ] &&
     [ ! -f NO-node-iperf ]
 then
 
-    if [ -f persist/$nodeId/var/run/transportdaemon.pid ]
+    if [ -f $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
 
     start_iperf \
         iperf \
-        persist/$nodeId/var/log/iperf.log \
-        persist/$nodeId/var/run/iperf.pid \
+        $PWD/persist/$nodeId/var/log/iperf.log \
+        $PWD/persist/$nodeId/var/run/iperf.pid \
         "$starttime"
 fi
 
