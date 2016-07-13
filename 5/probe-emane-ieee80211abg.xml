@@ -1,0 +1,15 @@
+<probe-emane-IEEE80211abg address='localhost'>
+  <probes>
+    <EMANE.IEEE80211abg.Counters.General enable="yes"/>
+    <EMANE.IEEE80211abg.Counters.Queue0 enable="yes"/>
+    <EMANE.IEEE80211abg.Counters.Queue1 enable="yes"/>
+    <EMANE.IEEE80211abg.Counters.Queue2 enable="yes"/>
+    <EMANE.IEEE80211abg.Counters.Queue3 enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Events enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Neighbor enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Status.Queue0 enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Status.Queue1 enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Status.Queue2 enable="yes"/>
+    <EMANE.IEEE80211abg.Tables.Status.Queue3 enable="yes"/>
+  </probes>
+</probe-emane-IEEE80211abg>
