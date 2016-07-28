@@ -238,7 +238,7 @@ usage()
 }
 
 
-export PATH=$PATH:/sbin:/usr/sbin
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 
 starttime=
 
