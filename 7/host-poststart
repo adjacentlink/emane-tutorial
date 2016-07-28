@@ -1,0 +1,64 @@
+#!/bin/bash -
+
+start_otestpointd()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpointd: $xml"
+
+        otestpointd "$xml" -d -l 3 -f "$logfile" \
+                    --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpointd XML: $xml"
+        retval=1
+    fi
+
+    return $retval
+}
+
+start_otestpoint_recorder()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpoint-recorder: $xml"
+
+        otestpoint-recorder "$xml" -d -l 3 -f "$logfile" \
+                            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpoint-recorder XML: $xml"
+        retval=1
+    fi
+
+    return $retval
+}
+
+
+for node in `seq 1 10`
+do
+     start_otestpoint_recorder \
+        host-otestpoint-recorder$node.xml \
+        $PWD/persist/host/var/log/otestpoint-recorder$node.log \
+        $PWD/persist/host/var/run/otestpoint-recorder$node.pid \
+        $PWD/persist/host/var/run/otestpoint-recorder$node.uuid
+    
+    start_otestpointd \
+        host-otestpointd$node.xml \
+        $PWD/persist/host/var/log/otestpointd$node.log \
+        $PWD/persist/host/var/run/otestpointd$node.pid \
+        $PWD/persist/host/var/run/otestpointd$node.uuid
+done
+    

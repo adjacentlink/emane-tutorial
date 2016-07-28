@@ -1,6 +1,6 @@
 #!/bin/bash -
 #
-# Copyright (c) 2014-2015 - Adjacent Link LLC, Bridgewater, New Jersey
+# Copyright (c) 2014-2016 - Adjacent Link LLC, Bridgewater, New Jersey
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 start_sshd()
 {
     local pidfile=$1
-    
+
     /usr/sbin/sshd -o "PidFile=$pidfile"
 }
 
@@ -43,13 +43,13 @@ start_emanetransportd()
     local logfile=$2
     local pidfile=$3
     local uuidfile=$4
-    
+
     if [ -f $xml ]; then
 
         echo "Starting emanetransport: $xml"
 
         emanetransportd -r -d "$xml" -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile"
+                        --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
     else
@@ -58,7 +58,7 @@ start_emanetransportd()
 
         retval=1
     fi
-    
+
     return $retval
 }
 
@@ -69,7 +69,7 @@ start_emaneeventd_and_wait_for_gpspty()
     local pidfile=$3
     local uuidfile=$4
     local pty=$5
-    
+
     if [ -f $xml ]; then
 
         echo "Starting emaneeventd: $xml"
@@ -77,20 +77,20 @@ start_emaneeventd_and_wait_for_gpspty()
         rm -f "$pty"
 
         emaneeventd -r -d "$xml" -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile"
+                    --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
-        
+
         if [[ $retval == 0 ]]; then
 
             echo "Waiting for GPS Locatopn PTY: $pty"
-            
+
             while (! test -f "$pty")
             do
                 sleep 1
             done
         fi
-        
+
     else
         echo "Missing emaneeventd XML: $xml"
         retval=1
@@ -111,14 +111,14 @@ start_emane()
         echo "Starting emane: $xml"
 
         emane "$xml" -r -d -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile"
+              --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
     else
         echo "Missing emane XML: $xml"
         retval=1
     fi
-    
+
     return $retval
 }
 
@@ -146,12 +146,81 @@ start_mgen()
     fi
 
     nohup mgen             \
-        input $mgeninput   \
-        output $mgenoutput \
-        $startoption       \
-        txlog &> $logfile &
+          input $mgeninput   \
+          output $mgenoutput \
+          $startoption       \
+          txlog &> $logfile &
 
     echo $! > $pidfile
+}
+
+start_otestpointd()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpointd: $xml"
+
+        otestpointd "$xml" -d -l 3 -f "$logfile" \
+                    --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpointd XML: $xml"
+        retval=1
+    fi
+
+    return $retval
+}
+
+start_otestpoint_recorder()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpoint-recorder: $xml"
+
+        otestpoint-recorder "$xml" -d -l 3 -f "$logfile" \
+                            --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpoint-recorder XML: $xml"
+        retval=1
+    fi
+
+    return $retval
+}
+
+start_otestpoint_broker()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpoint-broker: $xml"
+
+        otestpoint-broker "$xml" -d -l 3 -f "$logfile" \
+                          --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpoint-broker XML: $xml"
+        retval=1
+    fi
+
+    return $retval
 }
 
 start_iperf()
@@ -197,7 +266,7 @@ wait_for_device()
     echo -n "waiting for $device..."
 
     while(! route -n | grep -q $device); do
-        
+
         if [ $waited -lt $timeout ]; then
             sleep 1
             waited=$(($waited + 1))
@@ -206,7 +275,7 @@ wait_for_device()
             return 1
         fi
     done
-    
+
     echo "found"
     return 0
 }
@@ -214,9 +283,9 @@ wait_for_device()
 wait_for_gpspty()
 {
     local pty=$1
-    
+
     echo "Waiting for GPS Locatopn PTY: $pty"
-    
+
     while (! test -f "$pty")
     do
         sleep 1
@@ -251,7 +320,7 @@ while getopts ":s:e:h" opt; do
         e)
             . "$OPTARG"
             ;;
-        h) 
+        h)
             usage
             exit 0
             ;;
@@ -275,7 +344,7 @@ then
     cd "$1"
 else
     echo "Invalid demo directory: $1" >&2
-    exit 1  
+    exit 1
 fi
 
 
@@ -294,36 +363,36 @@ fi
 
 start_sshd $PWD/persist/$nodeId/var/run/ssh.pid
 
-if [ -f transportdaemon$nodeId.xml ] && 
-    [ ! -f NO-node-emanetransportd$nodeId ] && 
-    [ ! -f NO-node-emanetransportd ]
+if [ -f transportdaemon$nodeId.xml ] &&
+       [ ! -f NO-node-emanetransportd$nodeId ] &&
+       [ ! -f NO-node-emanetransportd ]
 then
-    
+
     start_emanetransportd \
         transportdaemon$nodeId.xml \
         $PWD/persist/$nodeId/var/log/transportdaemon.log \
         $PWD/persist/$nodeId/var/run/transportdaemon.pid \
         $PWD/persist/$nodeId/var/run/transportdaemon.uuid
-    
+
     wait_for_device emane0 10
 fi
 
 if [ -f platform$nodeId.xml ] &&
-    [ ! -f NO-node-emane$nodeId ] && 
-    [ ! -f NO-node-emane ]
+       [ ! -f NO-node-emane$nodeId ] &&
+       [ ! -f NO-node-emane ]
 then
-    
+
     start_emane \
         platform$nodeId.xml \
         $PWD/persist/$nodeId/var/log/emane.log \
         $PWD/persist/$nodeId/var/run/emane.pid \
         $PWD/persist/$nodeId/var/run/emane.uuid
-    
+
 fi
 
 if [ -f eventdaemon$nodeId.xml ] &&
-    [ ! -f NO-node-emaneeventd$nodeId ] && 
-    [ ! -f NO-node-emaneeventd ]
+       [ ! -f NO-node-emaneeventd$nodeId ] &&
+       [ ! -f NO-node-emaneeventd ]
 then
     start_emaneeventd_and_wait_for_gpspty \
         eventdaemon$nodeId.xml \
@@ -331,12 +400,44 @@ then
         $PWD/persist/$nodeId/var/run/emaneeventd.pid  \
         $PWD/persist/$nodeId/var/run/emaneeventd.uuid \
         $PWD/persist/$nodeId/var/run/gps.pty
-    
+
     start_gpsd \
         $PWD/persist/$nodeId/var/run/gps.pty \
         $PWD/persist/$nodeId/var/run/gpsd.pid
 fi
 
+if [ -f otestpoint-recorder$nodeId.xml ] &&
+       [ ! -f NO-node-otestpoint-recorder$nodeId ] &&
+       [ ! -f NO-node-otestpoint-recorder ]
+then
+    start_otestpoint_recorder \
+        otestpoint-recorder$nodeId.xml \
+        $PWD/persist/$nodeId/var/log/otestpoint-recorder.log \
+        $PWD/persist/$nodeId/var/run/otestpoint-recorder.pid \
+        $PWD/persist/$nodeId/var/run/otestpoint-recorder.uuid
+fi
+
+if [ -f otestpoint-broker$nodeId.xml ] &&
+       [ ! -f NO-node-otestpoint-broker$nodeId ] &&
+       [ ! -f NO-node-otestpoint-broker ]
+then
+    start_otestpoint_broker \
+        otestpoint-broker$nodeId.xml \
+        $PWD/persist/$nodeId/var/log/otestpoint-broker.log \
+        $PWD/persist/$nodeId/var/run/otestpoint-broker.pid \
+        $PWD/persist/$nodeId/var/run/otestpoint-broker.uuid
+fi
+
+if [ -f otestpointd$nodeId.xml ] &&
+       [ ! -f NO-node-otestpointd$nodeId ] &&
+       [ ! -f NO-node-otestpointd ]
+then
+    start_otestpointd \
+        otestpointd$nodeId.xml \
+        $PWD/persist/$nodeId/var/log/otestpointd.log \
+        $PWD/persist/$nodeId/var/run/otestpointd.pid \
+        $PWD/persist/$nodeId/var/run/otestpointd.uuid
+fi
 
 if [ -x ./node-preapplication ]
 then
@@ -345,7 +446,7 @@ then
     then
         wait_for_device emane0 10
     fi
-    
+
     ./node-preapplication $nodeId
 elif [ -x node-preapplication$nodeId ]
 then
@@ -358,10 +459,9 @@ then
     ./node-preapplication$nodeId $nodeId
 fi
 
-
 if [ -f routing$nodeId.conf ] &&
-    [ ! -f NO-node-routing$nodeId ] && 
-    [ ! -f NO-node-routing ]
+       [ ! -f NO-node-routing$nodeId ] &&
+       [ ! -f NO-node-routing ]
 then
 
     if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
@@ -370,24 +470,24 @@ then
     fi
 
     start_routing routing$nodeId.conf
-    
+
 elif [ -f routing.conf ] &&
-    [ ! -f NO-node-routing$nodeId ] && 
-    [ ! -f NO-node-routing ]
-then 
+         [ ! -f NO-node-routing$nodeId ] &&
+         [ ! -f NO-node-routing ]
+then
 
     if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
     then
         wait_for_device emane0 10
     fi
-   
+
     start_routing routing.conf
-    
+
 fi
 
 if [ -f mgen$nodeId ] &&
-    [ ! -f NO-node-mgen$nodeId ] && 
-    [ ! -f NO-node-mgen ]
+       [ ! -f NO-node-mgen$nodeId ] &&
+       [ ! -f NO-node-mgen ]
 then
 
     if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
@@ -403,8 +503,8 @@ then
         "$starttime"
 
 elif [ -f mgen ] &&
-    [ ! -f NO-node-mgen$nodeId ] && 
-    [ ! -f NO-node-mgen ]
+         [ ! -f NO-node-mgen$nodeId ] &&
+         [ ! -f NO-node-mgen ]
 then
 
     if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
@@ -421,8 +521,8 @@ then
 fi
 
 if [ -f iperf$nodeId ] &&
-    [ ! -f NO-node-iperf$nodeId ] && 
-    [ ! -f NO-node-iperf ]
+       [ ! -f NO-node-iperf$nodeId ] &&
+       [ ! -f NO-node-iperf ]
 then
 
     if [ -f  $PWD/persist/$nodeId/var/run/transportdaemon.pid ]
@@ -437,8 +537,8 @@ then
         "$starttime"
 
 elif [ -f iperf ] &&
-    [ ! -f NO-node-iperf$nodeId ] && 
-    [ ! -f NO-node-iperf ]
+         [ ! -f NO-node-iperf$nodeId ] &&
+         [ ! -f NO-node-iperf ]
 then
 
     if [ -f $PWD/persist/$nodeId/var/run/transportdaemon.pid ]

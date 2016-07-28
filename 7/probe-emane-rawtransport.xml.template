@@ -1,0 +1,6 @@
+<probe-emane-RawTransport address='localhost' nem='@NEMID@'>
+  <probes>
+    <EMANE.RawTransport.Counters.General enable="yes"/>
+    <EMANE.RawTransport.Tables.Events enable="yes"/>
+  </probes>
+</probe-emane-RawTransport>

@@ -6,3 +6,9 @@ emanesh localhost get stat '*' all >  persist/host/var/log/emane.stats
 emanesh localhost get table '*' all >  persist/host/var/log/emane.tables
 emanesh localhost get config '*' all >  persist/host/var/log/emane.config
 
+
+echo "Stopping all otestpointd instances"
+kill -QUIT $(find persist -name otestpointd*.pid -exec cat {} \;)
+
+echo "Stopping all otestpoint-recorder instances"
+kill -QUIT $(find persist -name otestpoint-recorder*.pid -exec cat {} \;)

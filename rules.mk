@@ -26,11 +26,18 @@ TEMPLATE_DEMOSTOP ?= $(TOP_DIR)/templates/demo-stop.template
 
 PLATFORMDEPS=$(GENERATED_PLATFORMS:%=.%-dep) $(PLATFORMS:%=.%-dep)
 
+# Template for srw radio XML files
+TEMPLATE_OTESTPOINTD ?= $(TOP_DIR)/templates/otestpointd.xml.template
+
+# Template for srw radio XML files
+TEMPLATE_OTESTPOINTRECORDER ?= $(TOP_DIR)/templates/otestpoint-recorder.xml.template
+
 .PHONY:	all clean verify
 
 all:  $(GENERATED_EXTRA) $(PLATFORMDEPS) $(GENERATED_EVENTDAEMONS) \
       $(GENERATED_GPSDLOCATIONAGENTS) $(GENERATED_MGENINPUTS) \
-      $(GENERATED_ROUTINGCONFS)  demo-start demo-stop 
+      $(GENERATED_ROUTINGCONFS) $(GENERATED_OTESTPOINTDS) \
+      $(GENERATED_OTESTPOINTRECORDERS) demo-start demo-stop 
 	$(MAKE) all-local
 
 all-local:
@@ -38,17 +45,17 @@ all-local:
 verify:
 	xmllint --noout --valid *.xml
 
-edit= sed -e 's|@NEMID[@]|$*|g'                                        \
-          -e 's|@NODEID[@]|$*|g'                                       \
-          -e 's|@NODEIDHEX[@]|$(shell printf "%02x" $*)|g'             \
-          -e 's|@DEMOID[@]|$(DEMO_ID)|g'                               \
-          -e 's|@NEMXML[@]|$(NEM_XML)|g '                              \
-          -e 's|@TOPDIR[@]|$(shell dirname $$(pwd))|g'             \
-          -e 's|@NODECOUNT[@]|$(shell if [ -n "$(NODE_COUNT)" ];       \
-                                      then                             \
-                                        echo $(NODE_COUNT);            \
-                                      else                             \
-                                        echo $(PLATFORMDEPS)| wc -w;   \
+edit= sed -e 's|@NEMID[@]|$*|g' \
+          -e 's|@NODEID[@]|$*|g' \
+          -e 's|@NODEIDHEX[@]|$(shell printf "%02x" $*)|g' \
+          -e 's|@DEMOID[@]|$(DEMO_ID)|g' \
+          -e 's|@NEMXML[@]|$(NEM_XML)|g ' \
+          -e 's|@TOPDIR[@]|$(shell dirname $$(pwd))|g' \
+          -e 's|@NODECOUNT[@]|$(shell if [ -n "$(NODE_COUNT)" ]; \
+                                      then \
+                                        echo $(NODE_COUNT); \
+                                      else \
+                                        echo $(PLATFORMDEPS)| wc -w; \
                                       fi)|g'
 
 ifdef GENERATED_PLATFORMS
@@ -89,6 +96,16 @@ routing%.conf: $(TEMPLATE_ROUTING)
 	$(edit) $< > $@
 	chmod g-w,u-w $@
 
+otestpointd%.xml: $(TEMPLATE_OTESTPOINTD)
+	if test -f $@; then chmod u+w $@; fi
+	$(edit) $< > $@
+	chmod g-w,u-w $@
+
+otestpoint-recorder%.xml: $(TEMPLATE_OTESTPOINTRECORDER)
+	if test -f $@; then chmod u+w $@; fi
+	$(edit) $< > $@
+	chmod g-w,u-w $@
+
 demo-start: $(TEMPLATE_DEMOSTART)
 	if test -f $@; then chmod u+w $@; fi
 	$(edit) $< > $@
@@ -111,6 +128,8 @@ clean:
 	if test -n "rm -f $(GENERATED_MGENINPUTS)"; then rm -f $(GENERATED_MGENINPUTS); fi
 	if test -n "rm -f $(GENERATED_ROUTINGCONFS)"; then rm -f $(GENERATED_ROUTINGCONFS); fi
 	if test -n "rm -f $(GENERATED_EXTRA)"; then rm -f $(GENERATED_EXTRA); fi
+	if test -n "rm -f $(GENERATED_OTESTPOINTDS)"; then rm -f $(GENERATED_OTESTPOINTDS); fi
+	if test -n "rm -f $(GENERATED_OTESTPOINTRECORDERS)"; then rm -f $(GENERATED_OTESTPOINTRECORDERS); fi
 	rm -f transportdaemon[0-9]*.xml
 	rm -f .*-dep*
 	rm -rf .emanegentransportxml
