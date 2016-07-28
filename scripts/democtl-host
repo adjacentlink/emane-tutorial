@@ -258,7 +258,7 @@ case "$1" in
 
         if [ -n "$SUDO_USER" ]
             then
-            chown -R $SUDO_USER:$SUDO_USER persist
+            chown -R $SUDO_USER:`id -gn $SUDO_USER` persist
         fi
 
         if [ -f  /var/run/demo.lock ]
@@ -306,7 +306,7 @@ case "$1" in
             
             if [ -n "$SUDO_USER" ]
             then
-                chown -R $SUDO_USER:$SUDO_USER persist/$nodeid
+                chown -R $SUDO_USER:`id -gn $SUDO_USER` persist/$nodeid
             fi
 
             name=$prefix$nodeid
