@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<otestpoint-broker discovery="localhost:9001" publish="localhost:9002">
+  <testpoint discovery="node-1:8881" publish="node-1:8882"/>
+  <testpoint discovery="node-2:8881" publish="node-2:8882"/>
+  <testpoint discovery="node-3:8881" publish="node-3:8882"/>
+  <testpoint discovery="node-4:8881" publish="node-4:8882"/>
+</otestpoint-broker>

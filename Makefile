@@ -6,7 +6,8 @@ DEMOS=\
  4    \
  5    \
  6    \
- 7    
+ 7    \
+ 8
 
 all:
 	@for demo in $(DEMOS); do \

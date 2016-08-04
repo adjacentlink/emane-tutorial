@@ -1,8 +1,8 @@
 TOP_DIR=..
 
-DEMO_ID=3
+DEMO_ID=8
 
-NEM_XML=ieee80211abgnem.xml
+NEM_XML=tdmanem.xml
 
 TEMPLATE_OTESTPOINTD=otestpointd.xml.template
 

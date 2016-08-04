@@ -1,6 +1,6 @@
 #!/bin/bash -
 #
-# Copyright (c) 2014-2015 - Adjacent Link LLC, Bridgewater, New Jersey
+# Copyright (c) 2014-2016 - Adjacent Link LLC, Bridgewater, New Jersey
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ fi
 
 check_bridge()
 {
-    return $(brctl show | awk "/^$1[\t\s]+/{exit 1}") 
+    return $(brctl show | awk "/^$1[\t\s]+/{exit 1}")
 }
 
 check_euid()
@@ -74,8 +74,8 @@ start_emaneeventservice()
         echo "Starting emaneeventservice: $xml at $starttime"
 
         emaneeventservice -d "$xml" -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile" \
-            $startoption
+                          --pidfile "$pidfile" --uuidfile "$uuidfile" \
+                          $startoption
 
         retval=$?
     else
@@ -84,7 +84,7 @@ start_emaneeventservice()
 
         retval=1
     fi
-    
+
     return $retval
 }
 
@@ -99,15 +99,15 @@ start_emane()
 
         echo "Starting emane: $xml"
 
-        emane "$xml" -d -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile"
+        emane "$xml" -r -d -l 3 -f "$logfile" \
+              --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
     else
         echo "Missing emane XML: $xml"
         retval=1
     fi
-    
+
     return $retval
 }
 
@@ -117,13 +117,13 @@ start_emanetransportd()
     local logfile=$2
     local pidfile=$3
     local uuidfile=$4
-    
+
     if [ -f $xml ]; then
 
         echo "Starting emanetransport: $xml"
 
         emanetransportd -r -d "$xml" -l 3 -f "$logfile" \
-            --pidfile "$pidfile" --uuidfile "$uuidfile"
+                        --pidfile "$pidfile" --uuidfile "$uuidfile"
 
         retval=$?
     else
@@ -132,7 +132,30 @@ start_emanetransportd()
 
         retval=1
     fi
-    
+
+    return $retval
+}
+
+start_otestpoint_broker()
+{
+    local xml=$1
+    local logfile=$2
+    local pidfile=$3
+    local uuidfile=$4
+
+    if [ -f $xml ]; then
+
+        echo "Starting otestpoint-broker: $xml"
+
+        otestpoint-broker "$xml" -d -l 3 -f "$logfile" \
+                          --pidfile "$pidfile" --uuidfile "$uuidfile"
+
+        retval=$?
+    else
+        echo "Missing otestpoint-broker XML: $xml"
+        retval=1
+    fi
+
     return $retval
 }
 
@@ -145,7 +168,7 @@ wait_for_device()
     echo -n "waiting for $device..."
 
     while(! ip link show | grep -q $device); do
-        
+
         if [ $waited -lt $timeout ]; then
             sleep 1
             waited=$(($waited + 1))
@@ -154,7 +177,7 @@ wait_for_device()
             return 1
         fi
     done
-    
+
     echo "found"
     return 0
 }
@@ -165,7 +188,7 @@ usage()
     echo " usage: democtl-host start [START OPTIONS]... TOPDIR DEMOID NUMBER_NODES"
     echo "        democtl-host stop  [STOP OPTIONS]... TOPDIR DEMOID NUMBER_NODES"
     echo "        democtl-host help"
-    echo 
+    echo
     echo " start options:"
     echo "  -s STARTTIME  Demo scenario start time HH:MM:SS or any 'date' command"
     echo "                 syntax (i.e. 'now + 30 sec')"
@@ -188,7 +211,7 @@ case "$1" in
     start)
         starttime=
         envcommand=
-        
+
         OPTIND=2
 
         # process options
@@ -204,22 +227,22 @@ case "$1" in
                 e)
                     envcommand="-e $OPTARG"
                     . "$OPTARG"
-                    ;;   
+                    ;;
                 \?)
                     echo "Invalid option: -$OPTARG" >&2
                     exit 1
                     ;;
             esac
         done
-        
+
         shift $((OPTIND - 1))
-        
+
         if [ $# -ne 3 ]
         then
             echo "Invalid number of parameters $@" >&2
             exit 1
         fi
-        
+
         shopt -s extglob
         topdir=$1
         demoid=$2
@@ -236,19 +259,19 @@ case "$1" in
             echo "Invalid node count: nodecount" >&2
             exit 1
         fi
-        
+
         if [ -z "$starttime" ]
         then
             starttime=$(date -R --date "now + 40 sec")
         else
             starttime=$(date --date "$starttime" "+%H:%M:%S")
         fi
-        
+
         utctime=$(date -R --date="$starttime" --utc)
 
         if [ ! -d $nodevolume ]
         then
-            echo "Node volume does not exist:  $nodevolume" >&2  
+            echo "Node volume does not exist:  $nodevolume" >&2
             exit 1
         fi
 
@@ -257,12 +280,12 @@ case "$1" in
         mkdir -p persist/host/var/run
 
         if [ -n "$SUDO_USER" ]
-            then
-            chown -R $SUDO_USER:$SUDO_USER persist
+        then
+            chown -R $SUDO_USER:`id -gn $SUDO_USER` persist
         fi
 
         if [ -f  /var/run/demo.lock ]
-            then
+        then
             echo "Demo example $(cat /var/run/demo.lock) already running" >&2
             echo "Run './demo-stop' first" >&2
             exit 1
@@ -275,19 +298,19 @@ case "$1" in
             if (check_bridge $bridge)
             then
                 echo "Creating bridge: $bridge"
-                
+
                 brctl addbr $bridge
 
                 wait_for_device $bridge 10
-                
+
                 ip link set $bridge up
 
                 sleep 1
-                
+
                 ip addr add 10.99.0.100/24 dev $bridge
-                
+
                 iptables -I INPUT -i $bridge -j ACCEPT
-                
+
                 iptables -I FORWARD -i $bridge -j ACCEPT
             else
                 echo "Found bridge: $bridge"
@@ -303,10 +326,10 @@ case "$1" in
             mkdir -p persist/$nodeid/var/run
             rm -f persist/$nodeid/var/log/*
             rm -f persist/$nodeid/var/run/*
-            
+
             if [ -n "$SUDO_USER" ]
             then
-                chown -R $SUDO_USER:$SUDO_USER persist/$nodeid
+                chown -R $SUDO_USER:`id -gn $SUDO_USER` persist/$nodeid
             fi
 
             name=$prefix$nodeid
@@ -339,22 +362,22 @@ lxc.autodev = 0
 
 EOF
 
-           if [[ $lxcmajorversion -ne 0 ]]
-           then
-               echo "lxc.aa_profile = unconfined" >> persist/$nodeid/var/run/lxc.conf.$nodeid
-           fi
+            if [[ $lxcmajorversion -ne 0 ]]
+            then
+                echo "lxc.aa_profile = unconfined" >> persist/$nodeid/var/run/lxc.conf.$nodeid
+            fi
 
             echo "Starting lxc instance: $name"
-            
+
             lxc-execute -f persist/$nodeid/var/run/lxc.conf.$nodeid \
-                -n $name \
-                -o persist/$nodeid/var/log/lxc-execute.log.$nodeid \
-                -- \
-                ../scripts/demo-init \
-                -s "$utctime" \
-                $envcommand \
-                "$topdir/$demoid" \
-                $nodeid  2> /dev/null &
+                        -n $name \
+                        -o persist/$nodeid/var/log/lxc-execute.log.$nodeid \
+                        -- \
+                        ../scripts/demo-init \
+                        -s "$utctime" \
+                        $envcommand \
+                        "$topdir/$demoid" \
+                        $nodeid  2> /dev/null &
 
             while (! test -f persist/$nodeid/var/log/lxc-execute.log.$nodeid)
             do
@@ -364,9 +387,9 @@ EOF
         done
 
         if [ -f transportdaemon.xml ] &&
-            [ ! -f NO-host-emanetransportd ]
+               [ ! -f NO-host-emanetransportd ]
         then
-    
+
             start_emanetransportd \
                 transportdaemon.xml \
                 persist/host/var/log/transportdaemon.log \
@@ -375,32 +398,42 @@ EOF
         fi
 
         if [ -f platform.xml ] &&
-            [ ! -f NO-host-emane ]
+               [ ! -f NO-host-emane ]
         then
-            
+
             start_emane \
                 platform.xml \
                 persist/host/var/log/emane.log \
                 persist/host/var/run/emane.pid \
                 persist/host/var/run/emane.uuid
         fi
-        
+
         if [ ! -f persist/host/var/run/emaneeventservice.pid ]
         then
             if [ -f eventservice.xml ] &&
-                [ ! -f NO-host-emaneeventservice ]
+                   [ ! -f NO-host-emaneeventservice ]
             then
                 start_emaneeventservice eventservice.xml \
-                    persit/host/var/log/emaneeventservice.log \
-                    persist/host/var/run/emaneeventservice.pid \
-                    persist/host/var/run/emaneeventservice.uuid \
-                    "$starttime"
+                                        persit/host/var/log/emaneeventservice.log \
+                                        persist/host/var/run/emaneeventservice.pid \
+                                        persist/host/var/run/emaneeventservice.uuid \
+                                        "$starttime"
             fi
         else
             echo "Found an emaneeventservice pid file: unable to start" >&2
         fi
-        
-        if [ -x ./host-poststart ]
+
+        if [ -f otestpoint-broker.xml ] &&
+               [ ! -f NO-host-otestpoint-broker ]
+        then
+            start_otestpoint_broker \
+                otestpoint-broker.xml \
+                persist/host/var/log/otestpoint-broker.log \
+                persist/host/var/run/otestpoint-broker.pid \
+                persist/host/var/run/otestpoint-broker.uuid
+        fi
+
+        if [ -x host-poststart ]
         then
             ./host-poststart $demoid $nodecount
         fi
@@ -418,7 +451,7 @@ EOF
                 e)
                     envcommand="-e $OPTARG"
                     . "$OPTARG"
-                    ;;   
+                    ;;
                 \?)
                     echo "Invalid option: -$OPTARG" >&2
                     exit 1
@@ -433,7 +466,7 @@ EOF
             echo "Invalid number of parameters" >&2
             exit 1
         fi
-        
+
         shopt -s extglob
         topdir=$1
         demoid=$2
@@ -475,13 +508,19 @@ EOF
             fi
 
         done
-        
+
+        if [ -f persist/host/var/run/otestpoint-broker.pid ]
+        then
+            kill -QUIT $(cat persist/host/var/run/otestpoint-broker.pid)
+            rm -f persist/host/var/run/otestpoint-broker.pid
+        fi
+
         if [ -f persist/host/var/run/emaneeventservice.pid ]
         then
             kill -QUIT $(cat persist/host/var/run/emaneeventservice.pid)
             rm -f persist/host/var/run/emaneeventservice.pid
         fi
-                
+
         if [ -f persist/host/var/run/emane.pid ]
         then
             kill -QUIT $(cat persist/host/var/run/emane.pid)
@@ -493,19 +532,19 @@ EOF
             kill -QUIT $(cat persist/host/var/run/transportdaemon.pid)
             rm -f persist/host/var/run/transportdaemon.pid
         fi
-        
+
         if [[ $bridgecontrol -ne 0 ]]
         then
             if (! check_bridge $bridge)
             then
                 echo "Removing bridge: $bridge"
-                
+
                 ip link set $bridge down
-                
+
                 brctl delbr $bridge
-                
+
                 iptables -D INPUT -i $bridge -j ACCEPT
-                
+
                 iptables -D FORWARD -i $bridge -j ACCEPT
             fi
         fi
@@ -529,24 +568,28 @@ EOF
         do
             echo "Performing extra cleanup of emanetransportd [$i]"
             kill -9 $i;
-        done    
+        done
 
         for i in $(ps ax | awk '/eman[e] /{print $1}')
         do
             echo "Performing extra cleanup of emane [$i]"
             kill -9 $i;
-        done    
+        done
 
-        
-        rm -f /var/run/demo.lock
+        if [ -x ./host-poststop ]
+        then
+            ./host-poststop $demoid $nodecount
+        fi
+
+	    rm -f /var/run/demo.lock
         ;;
 
     help)
-        usage 
+        usage
         exit 0
         ;;
     *)
         usage
-	      exit 1
+	    exit 1
         ;;
 esac

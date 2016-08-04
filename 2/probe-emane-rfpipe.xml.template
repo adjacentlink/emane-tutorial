@@ -1,0 +1,8 @@
+<probe-emane-RFPipe address='localhost' nem='@NEMID@'>
+  <probes>
+    <EMANE.RFPipe.Counters.General enable="yes"/>
+    <EMANE.RFPipe.Tables.Events enable="yes"/>
+    <EMANE.RFPipe.Tables.Neighbor enable="yes"/>
+    <EMANE.RFPipe.Tables.Status enable="yes"/>
+  </probes>
+</probe-emane-RFPipe>
