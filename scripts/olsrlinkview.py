@@ -130,7 +130,7 @@ class NodeTextInfoThread(threading.Thread,Stoppable):
             c.setopt(pycurl.CONNECTTIMEOUT, 1)
             c.setopt(pycurl.TIMEOUT, 1)
             c.setopt(pycurl.NOSIGNAL, 1)
-            c.setopt(pycurl.URL, "http://node-%d:2006/links" %(self._nodeId))
+            c.setopt(pycurl.URL, "http://node-%d:2006/lin" %(self._nodeId))
             c.setopt(pycurl.WRITEFUNCTION, self._processInfo)
 
             try:
