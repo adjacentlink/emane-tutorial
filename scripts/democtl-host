@@ -280,7 +280,7 @@ case "$1" in
         mkdir -p persist/host/var/run
 
         if [ -n "$SUDO_USER" ]
-	then
+        then
             chown -R $SUDO_USER:`id -gn $SUDO_USER` persist
         fi
 
