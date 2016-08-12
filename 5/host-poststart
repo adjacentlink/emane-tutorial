@@ -7,8 +7,8 @@ sleep 5
 echo 
 
 watch -e -t -n .5 'set -f; \
-                emanesh node-1 get table * mac UnicastPacketAcceptTable0; \
-                emanesh node-2 get table * mac UnicastPacketAcceptTable0 \
+                emanesh node-1 get table nems mac UnicastPacketAcceptTable0; \
+                emanesh node-2 get table nems mac UnicastPacketAcceptTable0 \
                  UnicastPacketDropTable0 NeighborStatusTable; \
                 if (grep -q STOP persist/2/var/log/mgen.out); then \
                   echo; \

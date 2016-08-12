@@ -1,0 +1,15 @@
+<probe-emane-TDMAEventSchedulerRadioModel address='localhost'>
+  <probes>
+    <EMANE.TDMAEventSchedulerRadioModel.Counters.General enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Counters.Schedule enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Events enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Schedule enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Class0 enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Class1 enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Class2 enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Class3 enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Class4 enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Queue enable="yes"/>
+    <EMANE.TDMAEventSchedulerRadioModel.Tables.Status.Slot enable="yes"/>
+  </probes>
+</probe-emane-TDMAEventSchedulerRadioModel>

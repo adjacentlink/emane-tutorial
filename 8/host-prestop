@@ -1,0 +1,22 @@
+#!/bin/bash -
+
+if [ $# -ne 2 ]
+   then
+    "host-prestop: invalid number of arguments" >&2 
+    exit 1
+fi
+
+demo=$1
+count=$2
+
+echo "Running host-prestop demo $demo node count $2"
+
+for nodeid in $(seq 1 $count)
+do
+    name=node-$nodeid
+    echo "Collecting statistics and configuration from $name"
+    emanesh $name show >  persist/$nodeid/var/log/emane.show
+    emanesh $name get stat '*' all >  persist/$nodeid/var/log/emane.stats
+    emanesh $name get table '*' all >  persist/$nodeid/var/log/emane.tables
+    emanesh $name get config '*' all >  persist/$nodeid/var/log/emane.config
+done

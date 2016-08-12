@@ -4,6 +4,4 @@ ip addr add 10.100.0.$1/24 broadcast 10.100.0.255 dev eth2
 
 ip link set eth2 up
 
-
-                                
-
+ethtool --offload eth2 rx off tx off

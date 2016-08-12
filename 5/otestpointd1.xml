@@ -1,0 +1,11 @@
+<otestpoint id="node-1" discovery="node-1:8881" publish="node-1:8882">
+  <probe configuration="probe-emane-physicallayer.xml">
+    <python module="otestpoint.emane.physicallayer" class="PhysicalLayer"/>
+  </probe>
+   <probe configuration="probe-emane-ieee80211abg.xml">
+     <python module="otestpoint.emane.ieee80211abg" class="IEEE80211abg"/>
+   </probe>
+   <probe configuration="probe-emane-virtualtransport.xml">
+     <python module="otestpoint.emane.virtualtransport" class="VirtualTransport"/>
+   </probe>
+</otestpoint>

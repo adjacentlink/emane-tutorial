@@ -1,0 +1,7 @@
+<probe-emane-CommEffect address='localhost' nem='@NEMID@'>
+  <probes>
+    <EMANE.CommEffect.Counters.General enable="yes"/>
+    <EMANE.CommEffect.Tables.Events enable="yes"/>
+    <EMANE.CommEffect.Tables.Status enable="yes"/>
+  </probes>
+</probe-emane-CommEffect>

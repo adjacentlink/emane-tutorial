@@ -1,0 +1,7 @@
+<probe-emane-VirtualTransport address='localhost'>
+  <probes>
+    <EMANE.VirtualTransport.Counters.General enable="yes"/>
+    <EMANE.VirtualTransport.Tables.Events enable="yes"/>
+    <EMANE.VirtualTransport.Tables.Status enable="yes"/>
+  </probes>
+</probe-emane-VirtualTransport>

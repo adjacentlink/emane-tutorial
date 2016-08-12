@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<otestpoint-broker discovery="localhost:9001" publish="localhost:9002">
+  <testpoint discovery="localhost:8881" publish="localhost:8891"/>
+  <testpoint discovery="localhost:8882" publish="localhost:8892"/>
+  <testpoint discovery="localhost:8883" publish="localhost:8893"/>
+  <testpoint discovery="localhost:8884" publish="localhost:8894"/>
+  <testpoint discovery="localhost:8885" publish="localhost:8895"/>
+  <testpoint discovery="localhost:8886" publish="localhost:8896"/>
+  <testpoint discovery="localhost:8887" publish="localhost:8897"/>
+  <testpoint discovery="localhost:8888" publish="localhost:8898"/>
+  <testpoint discovery="localhost:8889" publish="localhost:8899"/>
+  <testpoint discovery="localhost:8890" publish="localhost:8900"/>
+</otestpoint-broker>
