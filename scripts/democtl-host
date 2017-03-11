@@ -414,7 +414,7 @@ EOF
                    [ ! -f NO-host-emaneeventservice ]
             then
                 start_emaneeventservice eventservice.xml \
-                                        persit/host/var/log/emaneeventservice.log \
+                                        persist/host/var/log/emaneeventservice.log \
                                         persist/host/var/run/emaneeventservice.pid \
                                         persist/host/var/run/emaneeventservice.uuid \
                                         "$starttime"
