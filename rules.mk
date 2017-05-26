@@ -123,13 +123,13 @@ demo-stop: $(TEMPLATE_DEMOSTOP)
 
 clean:
 	if test -n "$(GENERATED_PLATFORMS)"; then rm -f $(GENERATED_PLATFORMS); fi
-	if test -n "rm -f $(GENERATED_EVENTDAEMONS)"; then rm -f $(GENERATED_EVENTDAEMONS); fi
-	if test -n "rm -f $(GENERATED_GPSDLOCATIONAGENTS)"; then rm -f $(GENERATED_GPSDLOCATIONAGENTS); fi
-	if test -n "rm -f $(GENERATED_MGENINPUTS)"; then rm -f $(GENERATED_MGENINPUTS); fi
-	if test -n "rm -f $(GENERATED_ROUTINGCONFS)"; then rm -f $(GENERATED_ROUTINGCONFS); fi
-	if test -n "rm -f $(GENERATED_EXTRA)"; then rm -f $(GENERATED_EXTRA); fi
-	if test -n "rm -f $(GENERATED_OTESTPOINTDS)"; then rm -f $(GENERATED_OTESTPOINTDS); fi
-	if test -n "rm -f $(GENERATED_OTESTPOINTRECORDERS)"; then rm -f $(GENERATED_OTESTPOINTRECORDERS); fi
+	if test -n "$(GENERATED_EVENTDAEMONS)"; then rm -f $(GENERATED_EVENTDAEMONS); fi
+	if test -n "$(GENERATED_GPSDLOCATIONAGENTS)"; then rm -f $(GENERATED_GPSDLOCATIONAGENTS); fi
+	if test -n "$(GENERATED_MGENINPUTS)"; then rm -f $(GENERATED_MGENINPUTS); fi
+	if test -n "$(GENERATED_ROUTINGCONFS)"; then rm -f $(GENERATED_ROUTINGCONFS); fi
+	if test -n "$(GENERATED_EXTRA)"; then rm -f $(GENERATED_EXTRA); fi
+	if test -n "$(GENERATED_OTESTPOINTDS)"; then rm -f $(GENERATED_OTESTPOINTDS); fi
+	if test -n "$(GENERATED_OTESTPOINTRECORDERS)"; then rm -f $(GENERATED_OTESTPOINTRECORDERS); fi
 	rm -f transportdaemon[0-9]*.xml
 	rm -f .*-dep*
 	rm -rf .emanegentransportxml
