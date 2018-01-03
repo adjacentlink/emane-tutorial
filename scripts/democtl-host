@@ -358,9 +358,20 @@ lxc.tty = 1
 lxc.pts = 128
 lxc.cgroup.devices.allow = a
 
-lxc.autodev = 0
+lxc.autodev = 1
+lxc.hook.autodev = $topdir/$demoid/persist/$nodeid/var/run/lxc.hook.autodev.sh
 
 EOF
+
+            cat <<EOF > persist/$nodeid/var/run/lxc.hook.autodev.sh
+#!/bin/bash -
+if ! [ -c /dev/net/tun ]; then
+ mkdir -p /dev/net
+ mknod -m 666 /dev/net/tun c 10 200
+fi
+
+EOF
+            chmod a+x persist/$nodeid/var/run/lxc.hook.autodev.sh
 
             if [[ $lxcmajorversion -ne 0 ]]
             then
