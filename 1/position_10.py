@@ -1,6 +1,10 @@
 #!/usr/bin/env python
-from emanesh.events import EventService
-from emanesh.events import LocationEvent
+try:
+    from emane.events import EventService
+    from emane.events import LocationEvent
+except:
+    from emanesh.events import EventService
+    from emanesh.events import LocationEvent
 
 # create the event service
 service = EventService(('224.1.2.8',45703,'emanenode0'))
