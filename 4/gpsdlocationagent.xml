@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE eventagent SYSTEM "file:///usr/share/emane/dtd/eventagent.dtd">
-<eventagent library="gpsdlocationagent">
-  <param name="gpsdconnectionenabled" value="no"/>
-  <param name="pseudoterminalfile" value="/var/run/gps.pty"/>
-</eventagent>
