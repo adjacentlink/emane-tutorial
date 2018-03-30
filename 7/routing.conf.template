@@ -31,7 +31,7 @@ Interface "eth2"
  HelloValidityTime 5.0
 }
 
-LoadPlugin "olsrd_txtinfo.so.0.1"
+LoadPlugin "@OLSRTXTINFO@"
 {
 PlParam "accept" "0.0.0.0"
 }
