@@ -51,6 +51,8 @@ edit= sed -e 's|@NEMID[@]|$*|g' \
           -e 's|@DEMOID[@]|$(DEMO_ID)|g' \
           -e 's|@NEMXML[@]|$(NEM_XML)|g ' \
           -e 's|@TOPDIR[@]|$(shell dirname $$(pwd))|g' \
+          -e 's|@OLSRTXTINFO[@]|$(shell basename \
+                 $$(find /usr/lib* -name "olsrd_txtinfo.so*" -print 2> /dev/null))|g' \
           -e 's|@NODECOUNT[@]|$(shell if [ -n "$(NODE_COUNT)" ]; \
                                       then \
                                         echo $(NODE_COUNT); \
