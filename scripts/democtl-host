@@ -335,7 +335,39 @@ case "$1" in
             name=$prefix$nodeid
             hex=$(printf "%02x" $nodeid)
 
-            cat <<EOF > persist/$nodeid/var/run/lxc.conf.$nodeid
+	    if [[ $lxcmajorversion -eq 3 ]]
+	       then
+		   cat <<EOF > persist/$nodeid/var/run/lxc.conf.$nodeid
+lxc.uts.name=$name
+lxc.net.0.type=veth
+lxc.net.0.name=eth1
+lxc.net.0.flags=up
+lxc.net.0.link=$bridge
+lxc.net.0.hwaddr=02:00:$hex:01:00:01
+lxc.net.0.ipv4.address=10.99.0.$nodeid/24
+lxc.net.0.veth.pair=veth$nodeid.1
+
+lxc.net.1.type=veth
+lxc.net.1.name=eth2
+lxc.net.1.hwaddr=02:00:$hex:02:00:01
+lxc.net.1.veth.pair=veth$nodeid.2
+
+lxc.net.2.type = empty
+lxc.net.2.flags=up
+
+lxc.console.path = none
+lxc.tty.max = 1
+lxc.pty.max = 128
+lxc.cgroup.devices.allow = a
+lxc.mount.auto = proc sys cgroup
+
+lxc.autodev = 1
+lxc.hook.autodev = $topdir/$demoid/persist/$nodeid/var/run/lxc.hook.autodev.sh
+lxc.apparmor.profile = unconfined
+
+EOF
+	    else
+		cat <<EOF > persist/$nodeid/var/run/lxc.conf.$nodeid
 lxc.utsname=$name
 lxc.network.type=veth
 lxc.network.name=eth1
@@ -363,6 +395,12 @@ lxc.hook.autodev = $topdir/$demoid/persist/$nodeid/var/run/lxc.hook.autodev.sh
 
 EOF
 
+		if [[ $lxcmajorversion -ne 0 ]]
+		then
+                    echo "lxc.aa_profile = unconfined" >> persist/$nodeid/var/run/lxc.conf.$nodeid
+		fi
+	    fi
+
             cat <<EOF > persist/$nodeid/var/run/lxc.hook.autodev.sh
 #!/bin/bash -
 if ! [ -c /dev/net/tun ]; then
@@ -372,11 +410,6 @@ fi
 
 EOF
             chmod a+x persist/$nodeid/var/run/lxc.hook.autodev.sh
-
-            if [[ $lxcmajorversion -ne 0 ]]
-            then
-                echo "lxc.aa_profile = unconfined" >> persist/$nodeid/var/run/lxc.conf.$nodeid
-            fi
 
             echo "Starting lxc instance: $name"
 
