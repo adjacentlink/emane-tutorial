@@ -171,7 +171,7 @@ class NodeGPSDThread(threading.Thread,Stoppable):
                 session.write("?WATCH={\"enable\":true,\"json\":true}\n")
 
                 while self._checkRunning():
-                    (_,_,line) = session.expect([".+\n"])
+                    (_,_,line) = session.expect([".+\n"],timeout=2)
 
                     # fix a json message bug in some versions of gpsd
                     line = line.replace('"parity":"}','"parity":""}')
