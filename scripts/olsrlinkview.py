@@ -31,7 +31,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-
+from __future__ import absolute_import, division, print_function
 import pycurl
 import re
 import sys
@@ -61,7 +61,7 @@ optionParser.add_option("",
 (options, args) = optionParser.parse_args()
 
 if len(args) != 0 :
-    print >> sys.stderr, "invalid number of arguments"
+    print("invalid number of arguments", file=sys.stderr)
     exit(1)
 
 class Stoppable():
@@ -98,10 +98,10 @@ class NodeTextInfoThread(threading.Thread,Stoppable):
         self._links[self._nodeId]['valid'] = True
         self._links[self._nodeId]['aka'] = []
         
-        for line in buf.split("\n"):
-            m = re.match("^(\d+.\d+\.\d+\.\d+)\s+(\d+.\d+\.\d+\.\d+)\s+"\
-                             "(\d+\.\d+)\s+(\d+\.\d+)\s+"\
-                             "(\d+\.\d+)\s+(\d+\.\d+)",line)
+        for line in buf.decode('ascii').split("\n"):
+            m = re.match(r"^(\d+.\d+\.\d+\.\d+)\s+(\d+.\d+\.\d+\.\d+)\s+"\
+                         "(\d+\.\d+)\s+(\d+\.\d+)\s+"\
+                         "(\d+\.\d+)\s+(\d+\.\d+)",line)
 
             if m:
                 if m.group(1) not in self._links:
@@ -137,9 +137,9 @@ class NodeTextInfoThread(threading.Thread,Stoppable):
                 c.perform()
 
                 time.sleep(2)
-            except pycurl.error, error:
+            except pycurl.error as error:
                 # txtinfo was resetting conneciton
-                if error[0] == 56:
+                if error.args[0] == 56:
                     time.sleep(2)
                 else:
                     self._lock.acquire()
@@ -168,13 +168,13 @@ class NodeGPSDThread(threading.Thread,Stoppable):
             try:
                 session = telnetlib.Telnet("node-%d"%self._nodeId,2947,5)
 
-                session.write("?WATCH={\"enable\":true,\"json\":true}\n")
+                session.write("?WATCH={\"enable\":true,\"json\":true}\n".encode('ascii'))
 
                 while self._checkRunning():
-                    (_,_,line) = session.expect([".+\n"],timeout=2)
+                    (_,_,line) = session.expect([b".+\n"],timeout=2)
 
                     # fix a json message bug in some versions of gpsd
-                    line = line.replace('"parity":"}','"parity":""}')
+                    line = line.replace(b'"parity":"}',b'"parity":""}')
 
                     data = json.loads(line.rstrip())
 
@@ -219,7 +219,7 @@ class DisplayUpdate(threading.Thread,Stoppable):
 
             self._linksLock.acquire()
 
-            for node in sorted(self._links, key=self._links.get):
+            for node in sorted(self._links.keys()):
                 foundNodes.append(node)
 
                 if self._links[node]['addr']:
@@ -245,8 +245,8 @@ class DisplayUpdate(threading.Thread,Stoppable):
 
             edgesElement = etree.SubElement(rootElement, "edges")
 
-            for node in sorted(self._links, key=self._links.get):
-                for neighbor in sorted(self._links[node]['links'], key=self._links[node]['links'].get):
+            for node in sorted(self._links.keys()):
+                for neighbor in sorted(self._links[node]['links'].keys()):
                     if neighbor in addressMap and self._links[node]['addr'] in addressMap:
                         lq = self._links[node]['links'][neighbor]['lq']
 
