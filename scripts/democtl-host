@@ -355,7 +355,6 @@ lxc.net.2.flags=up
 lxc.console.path = none
 lxc.tty.max = 1
 lxc.pty.max = 128
-lxc.cgroup.devices.allow = a
 lxc.mount.auto = proc sys cgroup
 
 lxc.autodev = 1
