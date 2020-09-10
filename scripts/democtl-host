@@ -332,7 +332,7 @@ case "$1" in
             name=$prefix$nodeid
             hex=$(printf "%02x" $nodeid)
 
-	    if [[ $lxcmajorversion -eq 3 ]]
+	    if [[ $lxcmajorversion -ge 3 ]]
 	       then
 		   cat <<EOF > persist/$nodeid/var/run/lxc.conf.$nodeid
 lxc.uts.name=$name
@@ -350,7 +350,6 @@ lxc.net.1.hwaddr=02:00:$hex:02:00:01
 lxc.net.1.veth.pair=veth$nodeid.2
 
 lxc.net.2.type = empty
-lxc.net.2.flags=up
 
 lxc.console.path = none
 lxc.tty.max = 1
