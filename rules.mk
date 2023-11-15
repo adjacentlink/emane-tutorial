@@ -71,8 +71,8 @@ endif
 
 $(PLATFORMDEPS): .%-dep:%
 	mkdir .emanegentransportxml && \
+	 emanegentransportxml ./$< -o .emanegentransportxml && \
 	 cd .emanegentransportxml &&   \
-	 emanegentransportxml ../$< && \
 	 for i in $$(ls *.xml); do chmod g-w,u-w $$i; cp -f $$i ..; done && \
 	 cd .. && \
 	 rm -rf .emanegentransportxml
