@@ -1,6 +1,9 @@
 emane-tutorial
 ==
 
+This project is deprecated in favor of [The EMANE Guide](https://emane.io).
+
+
 The emane-tutorial is a guided walk through deploying a series of emulation 
 configurations and scenarios using the 
 [EMANE](https://github.com/adjacentlink/emane) emulator. Each demonstration in 
